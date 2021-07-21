@@ -1,0 +1,12 @@
+Registro de um novo usuário:
+    Cliente: "Registrar: nome, IP, porta"
+    Servidor: "OK: Novo usuário registrado!"
+              "Erro: Já há um usuário registrado com esse nome!"
+
+Consulta de dados de outro usuário:
+    Cliente: "Consultar: nome"
+    Servidor: "OK: IP, porta"
+              "Erro: Não há nenhum usuário registrado com esse nome!"
+
+Fechamennto de conexão:
+    Cliente: "Fechar conexão: nome"

@@ -35,7 +35,7 @@ def get_mensagem_do_tipo_erro(informacoes):
     return "Erro: {0}".format(informacoes)
 
 def get_informacoes_da_mensagem(mensagem):
-    return mensagem[mensagem.find(":") + 1 :].trim()
+    return mensagem[mensagem.find(":") + 1 :].strip()
 
 def get_tipo_de_mensagem(mensagem):
     if(mensagem.startswith("Registrar")):   return MENSAGEM_TIPO_REGISTRAR

@@ -4,6 +4,9 @@ class Usuario:
         self.__ip = ip
         self.__porta = porta
     
+    def imprimir(self):
+        print("Nome: {0}    IP: {1}    Porta: {2}".format(self.nome, self.ip, self.porta))
+
     @property
     def nome(self):
         return self.__nome

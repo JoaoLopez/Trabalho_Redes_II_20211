@@ -9,13 +9,16 @@
             <mat-tab label="Cadastro">
                 <form [formGroup]="user" (ngSubmit)="onFormSubmit()">
                     <mat-form-field>
-                        <input matInput type="text" placeholder="Nome" autocomplete="false" [formControl]="user.get('name')">
+                        <input matInput type="text" placeholder="Nome" autocomplete="false"
+                            [formControl]="user.get('name')">
                     </mat-form-field>
                     <mat-form-field>
-                        <input matInput type="text" placeholder="ip" autocomplete="false" [formControl]="user.get('ip')">
+                        <input matInput type="text" placeholder="ip" autocomplete="false" [formControl]="user.get('ip')"
+                            [dropSpecialCharacters]="false" [validation]="true" mask="IP">
                     </mat-form-field>
                     <mat-form-field>
-                        <input matInput type="text" placeholder="Porta" autocomplete="false" [formControl]="user.get('port')">
+                        <input matInput type="text" placeholder="Porta" autocomplete="false"
+                            [formControl]="user.get('port')" mask="99999">
                     </mat-form-field>
                     <button mat-raised-button type="submit" color="primary" [disabled]="!user.valid">Registrar</button>
                 </form>

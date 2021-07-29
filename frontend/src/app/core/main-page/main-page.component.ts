@@ -17,7 +17,7 @@ export class MainPageComponent implements OnInit {
 
   constructor(private fb: FormBuilder) {
     this.user = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', Validators.compose([Validators.required, Validators.minLength(1), Validators.maxLength(100)])],
       ip: ['', Validators.compose([Validators.required, Validators.pattern(new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}', 'g'))])],
       port: ['', Validators.required]
     });
@@ -27,7 +27,9 @@ export class MainPageComponent implements OnInit {
   }
 
   onFormSubmit() {
-    console.log(this.user.value);
-    console.log(this.user.valid);
+    const newDataSource = this.dataSource.slice();
+    newDataSource.push(this.user.value);
+    this.dataSource = [...newDataSource];
+    this.user.reset();
   }
 }

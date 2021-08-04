@@ -1,0 +1,52 @@
+<div class="main-page">
+    <button mat-mini-fab color="primary" matTooltip="Fechar conexão">
+        <mat-icon>close</mat-icon>
+    </button>
+    <div class="main-page-container">
+        <h1 class="mat-h1">Trabalho prático de Redes II - Etapa I</h1>
+
+        <mat-tab-group dynamicHeight>
+            <mat-tab label="Cadastro">
+                <form [formGroup]="user" (ngSubmit)="onFormSubmit()">
+                    <mat-form-field>
+                        <input matInput type="text" placeholder="Nome" autocomplete="false"
+                            [formControl]="user.get('name')">
+                    </mat-form-field>
+                    <mat-form-field>
+                        <input matInput type="text" placeholder="ip" autocomplete="false" [formControl]="user.get('ip')"
+                            [dropSpecialCharacters]="false" [validation]="true" mask="IP">
+                    </mat-form-field>
+                    <mat-form-field>
+                        <input matInput type="text" placeholder="Porta" autocomplete="false"
+                            [formControl]="user.get('port')" mask="99999">
+                    </mat-form-field>
+                    <button mat-raised-button type="submit" color="primary" [disabled]="!user.valid">Registrar</button>
+                </form>
+                <mat-table [dataSource]="dataSource">
+                    <ng-container matColumnDef="name">
+                        <mat-header-cell *matHeaderCellDef> Nome </mat-header-cell>
+                        <mat-cell *matCellDef="let element"> {{element.name}} </mat-cell>
+                    </ng-container>
+
+                    <ng-container matColumnDef="ip">
+                        <mat-header-cell *matHeaderCellDef> IP </mat-header-cell>
+                        <mat-cell *matCellDef="let element"> {{element.ip}} </mat-cell>
+                    </ng-container>
+
+                    <ng-container matColumnDef="port">
+                        <mat-header-cell *matHeaderCellDef> Porta </mat-header-cell>
+                        <mat-cell *matCellDef="let element"> {{element.port}} </mat-cell>
+                    </ng-container>
+
+                    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+                </mat-table>
+            </mat-tab>
+            <mat-tab label="Eventos">
+                <div class="events">
+                    {{ events }}
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </div>
+</div>

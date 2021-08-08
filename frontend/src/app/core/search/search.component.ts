@@ -34,6 +34,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   onFormSubmit() {
     const userName = this.userSearch.get('name').value;
+    this.searchResult = '';
     this.userService.getUser(userName);
   }
 

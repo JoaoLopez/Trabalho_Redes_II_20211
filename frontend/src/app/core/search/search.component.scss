@@ -1,0 +1,23 @@
+:host {
+    .user-search-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+
+        form {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 24px;
+    
+            mat-form-field {
+                margin-right: 16px;
+            }
+        }
+
+        .search-result {
+            margin-top: 16px;
+        }
+    }
+}

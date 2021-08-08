@@ -17,12 +17,12 @@ io.on("connection", socket => {
         sockets.push(socket);
     }
 
-    // TODO: aplicar regra de usuário não existente
     socket.on("getUser", userName => {
         connectToServerSocket().then(_ => {
             const message = `Consultar: ${userName}$${socket.id}`;
             client.write(message);
-            socket.emit('events', 'CLIENTE: ' + message);
+            socket.emit('events', 'CLIENTE: ' + message + ' ' + String(new Date()));
+            console.log('Sent: ' + message);
         });
     });
 
@@ -31,7 +31,8 @@ io.on("connection", socket => {
         connectToServerSocket().then(_ => {
             const message = `Registrar: ${user.name}, ${user.ip}, ${user.port}, ${socket.id}`;
             client.write(message);
-            socket.emit('events', 'CLIENTE: ' + message);
+            socket.emit('events', 'CLIENTE: ' + message + ' ' + String(new Date()));
+            console.log('Sent: ' + message);
         });
     });
 
@@ -72,7 +73,7 @@ client.on('data', function (data) {
 
             users.push(user);
             socket.emit('user', user);
-            socket.emit('events', 'SERVIDOR: ' + data);
+            socket.emit('events', 'SERVIDOR: ' + data + ' ' + String(new Date()));
             io.emit("users", users);
         } else if (strData.startsWith('OK: ')) {
             const searchObj = strData.split('$')[1];
@@ -80,13 +81,13 @@ client.on('data', function (data) {
             const socket = getSocket(socketId);
 
             socket.emit('search', searchObj);
-            socket.emit('events', 'SERVIDOR: ' + data);
+            socket.emit('events', 'SERVIDOR: ' + data + ' ' + String(new Date()));
         } else if (strData.startsWith('Erro:')) {
             const errorMsgObject = strData.split('$')[1];
             const socketId = strData.split('$')[2];
             const socket = getSocket(socketId);
 
-            socket.emit('events', 'SERVIDOR: ' + data);
+            socket.emit('events', 'SERVIDOR: ' + data + ' ' + String(new Date()));
             socket.emit('errors', errorMsgObject);
         }
     } catch (e) {

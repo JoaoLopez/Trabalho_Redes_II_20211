@@ -1,10 +1,12 @@
+'use strict'
+
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const net = require('net');
 
 const client = new net.Socket();
-const users = [{ name: '1234', ip: '1234', port: 1234 }];
+const users = [];
 const sockets = [];
 
 io.on("connection", socket => {
@@ -16,14 +18,20 @@ io.on("connection", socket => {
     }
 
     // TODO: aplicar regra de usuário não existente
-    socket.on("getUser", userId => {
-        socket.emit("user", users[userId]);
+    socket.on("getUser", userName => {
+        connectToServerSocket().then(_ => {
+            const message = `Consultar: ${userName}$${socket.id}`;
+            client.write(message);
+            socket.emit('events', 'CLIENTE: ' + message);
+        });
     });
 
 
     socket.on("addUser", user => {
         connectToServerSocket().then(_ => {
-            client.write(`Registrar: ${user.name}, ${user.ip}, ${user.port}`);
+            const message = `Registrar: ${user.name}, ${user.ip}, ${user.port}, ${socket.id}`;
+            client.write(message);
+            socket.emit('events', 'CLIENTE: ' + message);
         });
     });
 
@@ -47,18 +55,39 @@ function connectToServerSocket() {
     });
 }
 
+function getSocket(socketId) {
+    return sockets.find(socket => socket.id === socketId);
+}
+
 // client.destroy(); para matar conexão
 client.on('data', function (data) {
-    const socket = sockets[0];
     const strData = String(data);
 
     try {
-        if (strData.startsWith('OK: Novo usuário registrado! ')) {
-            userObj = strData.split('OK: Novo usuário registrado! ')[1];
+        if (strData.startsWith('OK: Novo usuário registrado!')) {
+            const userObj = strData.split('$')[1];
+            const socketId = strData.split('$')[2];
+            const socket = getSocket(socketId);
             const user = JSON.parse(userObj);
+
             users.push(user);
             socket.emit('user', user);
+            socket.emit('events', 'SERVIDOR: ' + data);
             io.emit("users", users);
+        } else if (strData.startsWith('OK: ')) {
+            const searchObj = strData.split('$')[1];
+            const socketId = strData.split('$')[2];
+            const socket = getSocket(socketId);
+
+            socket.emit('search', searchObj);
+            socket.emit('events', 'SERVIDOR: ' + data);
+        } else if (strData.startsWith('Erro:')) {
+            const errorMsgObject = strData.split('$')[1];
+            const socketId = strData.split('$')[2];
+            const socket = getSocket(socketId);
+
+            socket.emit('events', 'SERVIDOR: ' + data);
+            socket.emit('errors', errorMsgObject);
         }
     } catch (e) {
         console.log(e.message);

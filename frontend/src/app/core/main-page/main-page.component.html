@@ -42,9 +42,14 @@
                     <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
                 </mat-table>
             </mat-tab>
+            <mat-tab label="Consulta">
+                <app-search></app-search>
+            </mat-tab>
             <mat-tab label="Eventos">
                 <div class="events">
-                    {{ events }}
+                    <p *ngFor="let event of events">
+                        {{ event }}
+                    </p>
                 </div>
             </mat-tab>
         </mat-tab-group>

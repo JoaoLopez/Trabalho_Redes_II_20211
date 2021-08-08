@@ -7,15 +7,17 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NgxMaskModule } from 'ngx-mask';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 
 import { MainPageComponent } from './main-page/main-page.component';
+import { SearchComponent } from './search/search.component';
 
 const config: SocketIoConfig = { url: 'http://172.24.12.45:4444', options: {} };
 
 @NgModule({
-  declarations: [MainPageComponent],
+  declarations: [MainPageComponent, SearchComponent],
   imports: [
     CommonModule,
     MatButtonModule,
@@ -24,6 +26,7 @@ const config: SocketIoConfig = { url: 'http://172.24.12.45:4444', options: {} };
     MatTabsModule,
     MatTableModule,
     MatTooltipModule,
+    MatSnackBarModule,
     NgxMaskModule.forRoot(),
     SocketIoModule.forRoot(config),
     ReactiveFormsModule

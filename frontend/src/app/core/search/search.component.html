@@ -1,0 +1,12 @@
+<div class="user-search-container">
+    <form [formGroup]="userSearch" (ngSubmit)="onFormSubmit()">
+        <mat-form-field>
+            <input matInput type="text" placeholder="Nome" autocomplete="false" [formControl]="userSearch.get('name')">
+        </mat-form-field>
+        <button mat-raised-button type="submit" color="primary">Buscar</button>
+    </form>
+
+    <div class="search-result">
+        {{ searchResult }}
+    </div>
+</div>

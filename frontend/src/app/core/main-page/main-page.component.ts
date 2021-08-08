@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material';
 import { Observable, Subscription } from 'rxjs';
 import { User } from '../interfaces/user.interface';
 import { UserService } from '../services/user.service';
@@ -12,7 +13,7 @@ import { UserService } from '../services/user.service';
 export class MainPageComponent implements OnInit, OnDestroy {
 
   user: FormGroup;
-  events = 'Eventos';
+  events: string[] = [];
 
   displayedColumns: string[] = ['name', 'ip', 'port'];
   dataSource: User[] = [];
@@ -20,8 +21,10 @@ export class MainPageComponent implements OnInit, OnDestroy {
   users: Observable<User[]>;
   currentUser: User;
   private userSub: Subscription;
+  private eventsSub: Subscription;
+  private errorsSub: Subscription;
 
-  constructor(private fb: FormBuilder, private userService: UserService) {
+  constructor(private fb: FormBuilder, private userService: UserService, private snackBar: MatSnackBar) {
     this.user = this.fb.group({
       name: ['', Validators.compose([Validators.required, Validators.minLength(1), Validators.maxLength(100)])],
       ip: ['', Validators.compose([Validators.required, Validators.pattern(new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}', 'g'))])],
@@ -35,10 +38,19 @@ export class MainPageComponent implements OnInit, OnDestroy {
       console.log(user);
       this.currentUser = user;
     });
+    this.eventsSub = this.userService.events.subscribe(event => {
+      console.log(event);
+      this.events.push(event);
+    });
+    this.errorsSub = this.userService.errors.subscribe(error => {
+      console.log(error);
+      this.snackBar.open(error, 'Fechar', {
+        duration: 2000,
+      });
+    });
     this.users.subscribe(users => {
       console.log(users)
-      const newDataSource = this.dataSource.slice();
-      newDataSource.push(this.user.value);
+      const newDataSource = users.slice();
       this.dataSource = [...newDataSource];
       this.user.reset();
     });
@@ -46,6 +58,8 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.userSub.unsubscribe();
+    this.eventsSub.unsubscribe();
+    this.errorsSub.unsubscribe();
   }
 
   onFormSubmit() {

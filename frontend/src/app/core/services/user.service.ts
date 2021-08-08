@@ -8,12 +8,15 @@ import { User } from '../interfaces/user.interface';
 export class UserService {
 
   currentUser = this.socket.fromEvent<User>('user');
+  searchUser = this.socket.fromEvent<string>('search');
+  events = this.socket.fromEvent<string>('events');
+  errors = this.socket.fromEvent<string>('errors');
   users = this.socket.fromEvent<User[]>('users');
 
   constructor(private socket: Socket) { }
 
-  getUser(id: string) {
-    this.socket.emit('getUser', id);
+  getUser(name: string) {
+    this.socket.emit('getUser', name);
   }
 
   newUser(user: User) {

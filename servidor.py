@@ -18,19 +18,20 @@ def imprimir_mensagens(mensagem, resposta):
     if(resposta != ""): print("Servidor: \"{0}\"".format(resposta))
 
 def processar_requisicao_de_registro(informacoes_da_mensagem):
-    nome, ip, porta = informacoes_da_mensagem.split(", ")
+    nome, ip, porta, socket_id = informacoes_da_mensagem.split(", ")
     if(nome in gUsuarios.keys()):
-        return protocolo_de_comunicacao.get_mensagem_do_tipo_erro("Já há um usuário registrado com esse nome!")
+        return protocolo_de_comunicacao.get_mensagem_do_tipo_erro("$Já há um usuário registrado com esse nome!$" + socket_id)
     adicionar_novo_usuario(nome, ip, porta)
     imprimir_usuarios()
-    return protocolo_de_comunicacao.get_mensagem_do_tipo_ok("Novo usuário registrado! " + json.dumps(gUsuarios[nome].to_json()))
+    return protocolo_de_comunicacao.get_mensagem_do_tipo_ok("Novo usuário registrado!$" + json.dumps(gUsuarios[nome].to_json()) + "$" + socket_id)
 
-def processar_requisicao_de_consulta(nome):
+def processar_requisicao_de_consulta(informacoes_da_mensagem):
+    nome, socket_id = informacoes_da_mensagem.split("$")
     try:
         usuario = gUsuarios[nome]
-        return protocolo_de_comunicacao.get_mensagem_do_tipo_ok("{0}, {1}".format(usuario.ip, usuario.porta))
+        return protocolo_de_comunicacao.get_mensagem_do_tipo_ok("${0}, {1}".format(usuario.ip, usuario.porta) + "$" + socket_id)
     except:
-        return protocolo_de_comunicacao.get_mensagem_do_tipo_erro("Não há nenhum usuário registrado com esse nome!")
+        return protocolo_de_comunicacao.get_mensagem_do_tipo_erro("$Não há nenhum usuário registrado com esse nome!$" + socket_id)
 
 def processar_requisicao_de_fechamento_de_conexao(nome):
     try:

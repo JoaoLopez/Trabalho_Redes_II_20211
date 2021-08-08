@@ -1,6 +1,7 @@
 from socket import *
 from usuario import Usuario
 import protocolo_de_comunicacao
+import json
 
 gUsuarios = {}
 
@@ -22,7 +23,7 @@ def processar_requisicao_de_registro(informacoes_da_mensagem):
         return protocolo_de_comunicacao.get_mensagem_do_tipo_erro("Já há um usuário registrado com esse nome!")
     adicionar_novo_usuario(nome, ip, porta)
     imprimir_usuarios()
-    return protocolo_de_comunicacao.get_mensagem_do_tipo_ok("Novo usuário registrado!")
+    return protocolo_de_comunicacao.get_mensagem_do_tipo_ok("Novo usuário registrado! " + json.dumps(gUsuarios[nome].to_json()))
 
 def processar_requisicao_de_consulta(nome):
     try:

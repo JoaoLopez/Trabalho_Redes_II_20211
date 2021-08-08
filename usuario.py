@@ -18,3 +18,6 @@ class Usuario:
     @property
     def porta(self):
         return self.__porta
+
+    def to_json(self):
+        return { 'name': self.nome, 'ip': self.ip, 'port': self.porta }

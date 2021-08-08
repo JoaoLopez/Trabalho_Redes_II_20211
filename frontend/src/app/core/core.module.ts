@@ -12,7 +12,7 @@ import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 
 import { MainPageComponent } from './main-page/main-page.component';
 
-const config: SocketIoConfig = { url: 'http://localhost:4444', options: {} };
+const config: SocketIoConfig = { url: 'http://172.24.12.45:4444', options: {} };
 
 @NgModule({
   declarations: [MainPageComponent],

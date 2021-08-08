@@ -4,29 +4,27 @@ const io = require('socket.io')(http);
 const net = require('net');
 
 const client = new net.Socket();
-const users = {};
+const users = [{ name: '1234', ip: '1234', port: 1234 }];
+const sockets = [];
 
 io.on("connection", socket => {
-    let previousId;
+    // mantida uma estrutura que armazena os sockets para enviar as respostas para os sockets corretos
+    const socketFound = sockets.find(sc => sc.id === socket.id);
+    if (!socketFound) {
+        console.log('Socket salvo');
+        sockets.push(socket);
+    }
 
-    // como não haverá edit, talvez não seja necessário
-    const safeJoin = currentId => {
-        socket.leave(previousId);
-        socket.join(currentId, () => console.log(`Socket ${socket.id} joined room ${currentId}`));
-        previousId = currentId;
-    };
-
+    // TODO: aplicar regra de usuário não existente
     socket.on("getUser", userId => {
-        safeJoin(userId);
         socket.emit("user", users[userId]);
     });
 
 
-    socket.on("addUser", doc => {
-        users[doc.id] = doc;
-        safeJoin(doc.id);
-        io.emit("users", Object.keys(users));
-        socket.emit("user", doc);
+    socket.on("addUser", user => {
+        connectToServerSocket().then(_ => {
+            client.write(`Registrar: ${user.name}, ${user.ip}, ${user.port}`);
+        });
     });
 
     // TODO: refatorar para removeUser
@@ -35,19 +33,38 @@ io.on("connection", socket => {
         socket.to(doc.id).emit("user", doc);
     });
 
-    io.emit("users", Object.keys(users));
-
-    /* client.connect(8484, '127.0.0.1', function () {
-        console.log('Connected');
-        client.write('Hello, server! Love, Client.');
-    });
-
-    client.on('data', function (data) {
-        console.log('Received: ' + data);
-        // client.destroy();
-    }); */
+    io.emit("users", users);
 
     console.log(`Socket ${socket.id} has connected`);
+});
+
+function connectToServerSocket() {
+    return new Promise((resolve, reject) => {
+        client.connect(5000, '127.0.0.1', function () {
+            console.log('Connected');
+            resolve();
+        });
+    });
+}
+
+// client.destroy(); para matar conexão
+client.on('data', function (data) {
+    const socket = sockets[0];
+    const strData = String(data);
+
+    try {
+        if (strData.startsWith('OK: Novo usuário registrado! ')) {
+            userObj = strData.split('OK: Novo usuário registrado! ')[1];
+            const user = JSON.parse(userObj);
+            users.push(user);
+            socket.emit('user', user);
+            io.emit("users", users);
+        }
+    } catch (e) {
+        console.log(e.message);
+    }
+
+    console.log('Received: ' + data);
 });
 
 http.listen(4444, '0.0.0.0', () => {

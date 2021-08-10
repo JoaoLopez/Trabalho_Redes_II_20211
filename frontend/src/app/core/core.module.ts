@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -13,14 +14,17 @@ import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 
 import { MainPageComponent } from './main-page/main-page.component';
 import { SearchComponent } from './search/search.component';
+import { CloseConnectionComponent } from './close-connection/close-connection.component';
 
 const config: SocketIoConfig = { url: 'http://172.24.12.45:4444', options: {} };
 
 @NgModule({
-  declarations: [MainPageComponent, SearchComponent],
+  declarations: [MainPageComponent, SearchComponent, CloseConnectionComponent],
   imports: [
     CommonModule,
+    FormsModule,
     MatButtonModule,
+    MatDialogModule,
     MatIconModule,
     MatInputModule,
     MatTabsModule,
@@ -31,6 +35,7 @@ const config: SocketIoConfig = { url: 'http://172.24.12.45:4444', options: {} };
     SocketIoModule.forRoot(config),
     ReactiveFormsModule
   ],
-  exports: [MainPageComponent]
+  exports: [MainPageComponent],
+  entryComponents: [CloseConnectionComponent]
 })
 export class CoreModule { }

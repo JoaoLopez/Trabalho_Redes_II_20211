@@ -1,7 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { Observable, Subscription } from 'rxjs';
+import { CloseConnectionComponent } from '../close-connection/close-connection.component';
+import { CloseConnection } from '../interfaces/close-dialog.interface';
 import { User } from '../interfaces/user.interface';
 import { UserService } from '../services/user.service';
 
@@ -19,15 +21,21 @@ export class MainPageComponent implements OnInit, OnDestroy {
   dataSource: User[] = [];
 
   users: Observable<User[]>;
-  currentUser: User;
+  currentUser: User = null;
   private userSub: Subscription;
   private eventsSub: Subscription;
   private errorsSub: Subscription;
+  private removeSub: Subscription;
 
-  constructor(private fb: FormBuilder, private userService: UserService, private snackBar: MatSnackBar) {
+  constructor(
+    public dialog: MatDialog,
+    private fb: FormBuilder,
+    private userService: UserService,
+    private snackBar: MatSnackBar,
+  ) {
     this.user = this.fb.group({
       name: ['', Validators.compose([Validators.required, Validators.minLength(1), Validators.maxLength(100)])],
-      ip: ['', Validators.compose([Validators.required, Validators.pattern(new RegExp('(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}', 'g'))])],
+      ip: ['', Validators.compose([Validators.required])],
       port: ['', Validators.required]
     });
   }
@@ -37,6 +45,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
     this.userSub = this.userService.currentUser.subscribe(user => {
       console.log(user);
       this.currentUser = user;
+      this.user.disable();
     });
     this.eventsSub = this.userService.events.subscribe(event => {
       console.log(event);
@@ -48,11 +57,16 @@ export class MainPageComponent implements OnInit, OnDestroy {
         duration: 2000,
       });
     });
+    this.removeSub = this.userService.remove.subscribe(userName => {
+      console.log(userName);
+      this.currentUser = null;
+      this.user.reset();
+      this.user.enable();
+    })
     this.users.subscribe(users => {
       console.log(users)
       const newDataSource = users.slice();
       this.dataSource = [...newDataSource];
-      this.user.reset();
     });
   }
 
@@ -60,11 +74,24 @@ export class MainPageComponent implements OnInit, OnDestroy {
     this.userSub.unsubscribe();
     this.eventsSub.unsubscribe();
     this.errorsSub.unsubscribe();
+    this.removeSub.unsubscribe();
   }
 
   onFormSubmit() {
     const newUser = this.user.value;
     newUser.port = new Number(newUser.port);
     this.userService.newUser(this.user.value);
+  }
+
+  openDialog() {
+    const dialogRef = this.dialog.open(CloseConnectionComponent, {
+      width: '250px'
+    });
+
+    dialogRef.afterClosed().subscribe((result: CloseConnection) => {
+      if (result.close) {
+        this.userService.removeUser(this.currentUser.name);
+      }
+    });
   }
 }

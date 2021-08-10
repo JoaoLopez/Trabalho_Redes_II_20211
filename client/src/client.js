@@ -36,10 +36,13 @@ io.on("connection", socket => {
         });
     });
 
-    // TODO: refatorar para removeUser
-    socket.on("editUser", doc => {
-        users[doc.id] = doc;
-        socket.to(doc.id).emit("user", doc);
+    socket.on("removeUser", userName => {
+        connectToServerSocket().then(_ => {
+            const message = `Fechar conexão: ${userName}$${socket.id}`;
+            client.write(message);
+            socket.emit('events', 'CLIENTE: ' + message + ' ' + String(new Date()));
+            console.log('Sent: ' + message);
+        });
     });
 
     io.emit("users", users);
@@ -73,6 +76,17 @@ client.on('data', function (data) {
 
             users.push(user);
             socket.emit('user', user);
+            socket.emit('events', 'SERVIDOR: ' + data + ' ' + String(new Date()));
+            io.emit("users", users);
+        } else if (strData.startsWith('OK: $Conexão encerrada')) {
+            const socketId = strData.split('$')[2];
+            const userName = strData.split('$')[3];
+            const socket = getSocket(socketId);
+            const user = users.find(u => u.name === userName);
+            const userIndex = users.indexOf(user);
+            users.splice(userIndex, 1);
+
+            socket.emit('remove', userName);
             socket.emit('events', 'SERVIDOR: ' + data + ' ' + String(new Date()));
             io.emit("users", users);
         } else if (strData.startsWith('OK: ')) {

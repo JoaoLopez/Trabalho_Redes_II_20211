@@ -33,9 +33,11 @@ def processar_requisicao_de_consulta(informacoes_da_mensagem):
     except:
         return protocolo_de_comunicacao.get_mensagem_do_tipo_erro("$Não há nenhum usuário registrado com esse nome!$" + socket_id)
 
-def processar_requisicao_de_fechamento_de_conexao(nome):
+def processar_requisicao_de_fechamento_de_conexao(informacoes_da_mensagem):
+    nome, socket_id = informacoes_da_mensagem.split("$")
     try:
         gUsuarios.pop(nome)
+        return protocolo_de_comunicacao.get_mensagem_do_tipo_ok("$Conexão encerrada$" + socket_id + "$" + nome)
     except:
         return
 
@@ -54,7 +56,7 @@ while 1:
     elif(tipo_de_mensagem == protocolo_de_comunicacao.MENSAGEM_TIPO_CONSULTAR):
         resposta = processar_requisicao_de_consulta(informacoes_da_mensagem)
     elif(tipo_de_mensagem == protocolo_de_comunicacao.MENSAGEM_TIPO_FECHAR_CONEXAO):
-        processar_requisicao_de_fechamento_de_conexao(informacoes_da_mensagem)
+        resposta = processar_requisicao_de_fechamento_de_conexao(informacoes_da_mensagem)
     imprimir_mensagens(mensagem, resposta)
     if(resposta != ""): socket_de_conexao.send(resposta.encode())
     socket_de_conexao.close()

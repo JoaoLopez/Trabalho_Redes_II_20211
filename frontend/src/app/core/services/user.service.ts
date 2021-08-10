@@ -9,6 +9,7 @@ export class UserService {
 
   currentUser = this.socket.fromEvent<User>('user');
   searchUser = this.socket.fromEvent<string>('search');
+  remove = this.socket.fromEvent<string>('remove');
   events = this.socket.fromEvent<string>('events');
   errors = this.socket.fromEvent<string>('errors');
   users = this.socket.fromEvent<User[]>('users');
@@ -23,7 +24,7 @@ export class UserService {
     this.socket.emit('addUser', user);
   }
 
-  editUser(document: Document) {
-    this.socket.emit('editUser', document);
+  removeUser(name: string) {
+    this.socket.emit('removeUser', name);
   }
 }

@@ -1,5 +1,5 @@
 <div class="main-page">
-    <button mat-mini-fab color="primary" matTooltip="Fechar conexão">
+    <button *ngIf="currentUser" mat-mini-fab color="primary" matTooltip="Fechar conexão" (click)="openDialog()">
         <mat-icon>close</mat-icon>
     </button>
     <div class="main-page-container">
@@ -20,7 +20,7 @@
                         <input matInput type="text" placeholder="Porta" autocomplete="false"
                             [formControl]="user.get('port')" mask="99999">
                     </mat-form-field>
-                    <button mat-raised-button type="submit" color="primary" [disabled]="!user.valid">Registrar</button>
+                    <button mat-raised-button type="submit" color="primary" [disabled]="!user.valid || currentUser">Conectar</button>
                 </form>
                 <mat-table [dataSource]="dataSource">
                     <ng-container matColumnDef="name">

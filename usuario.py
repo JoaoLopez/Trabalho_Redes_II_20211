@@ -1,3 +1,5 @@
+#Este arquivo define a classe Usuario que será utilizada pelo servidor
+#para representar cada um dos usuários da aplicação.
 class Usuario:
     def __init__(self, nome, ip, porta):
         self.__nome = nome

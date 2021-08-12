@@ -17,6 +17,10 @@ import { MainPageComponent } from './main-page/main-page.component';
 import { SearchComponent } from './search/search.component';
 import { CloseConnectionComponent } from './close-connection/close-connection.component';
 
+/** Configuração de comunicação com o backend
+ * o impotante é ser mantida a porta 4444, numa situação de execução local, o endereço 127.0.0.1 será suficiente
+ * para conectar. Como o desenvolvimento foi feito numa vm linux e ela tinha outra interface de rede, usamos o endereço da vm aqui para a conexão.
+ */
 const config: SocketIoConfig = { url: 'http://172.24.209.120:4444', options: {} };
 
 @NgModule({

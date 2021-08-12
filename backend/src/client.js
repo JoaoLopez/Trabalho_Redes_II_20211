@@ -4,6 +4,43 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const net = require('net');
+const { spawn } = require("child_process");
+const process = require('process');
+
+if (process.platform === "win32") {
+    var rl = require("readline").createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    rl.on("SIGINT", function () {
+        process.emit("SIGINT");
+    });
+}
+
+process.on("SIGINT", function () {
+    console.log('Encerrando');
+    ls.kill('SIGINT');
+    process.exit();
+});
+
+const ls = spawn("python3", ["servidor.py"]);
+
+ls.stdout.on("data", data => {
+    console.log(`stdout: ${data}`);
+});
+
+ls.stderr.on("data", data => {
+    console.log(`stderr: ${data}`);
+});
+
+ls.on('error', (error) => {
+    console.log(`error: ${error.message}`);
+});
+
+ls.on("close", code => {
+    console.log(`child process exited with code ${code}`);
+});
 
 const client = new net.Socket();
 const users = [];

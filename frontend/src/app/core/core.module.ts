@@ -16,7 +16,7 @@ import { MainPageComponent } from './main-page/main-page.component';
 import { SearchComponent } from './search/search.component';
 import { CloseConnectionComponent } from './close-connection/close-connection.component';
 
-const config: SocketIoConfig = { url: 'http://172.24.12.45:4444', options: {} };
+const config: SocketIoConfig = { url: 'http://172.24.209.120:4444', options: {} };
 
 @NgModule({
   declarations: [MainPageComponent, SearchComponent, CloseConnectionComponent],

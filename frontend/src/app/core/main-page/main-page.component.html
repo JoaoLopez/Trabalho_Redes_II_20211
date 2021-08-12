@@ -45,7 +45,11 @@
             <mat-tab label="Consulta" [disabled]="!hasUser">
                 <app-search></app-search>
             </mat-tab>
-            <mat-tab label="Eventos">
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <span *ngIf="eventsCount > 0" [matBadge]="eventsCount" matBadgeOverlap="false">Eventos</span>
+                    <span *ngIf="eventsCount === 0">Eventos</span>
+                  </ng-template>
                 <div class="events">
                     <p *ngFor="let event of events">
                         {{ event }}

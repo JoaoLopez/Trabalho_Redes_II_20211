@@ -4,6 +4,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
@@ -24,6 +25,7 @@ const config: SocketIoConfig = { url: 'http://172.24.209.120:4444', options: {} 
     CommonModule,
     FormsModule,
     MatButtonModule,
+    MatBadgeModule,
     MatDialogModule,
     MatIconModule,
     MatInputModule,

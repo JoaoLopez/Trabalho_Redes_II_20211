@@ -56,14 +56,19 @@ io.on("connection", socket => {
 
     socket.on("disconnect", (reason) => {
         let index = sockets.indexOf(socket);
-        sockets.splice(index, 1);
         const disconnectedUser = users.find(u => u.socketId === socket.id);
 
-        connectToServerSocket().then(_ => {
-            const message = `Fechar conexão: ${disconnectedUser.name}$${socket.id}`;
-            client.write(message);
-            console.log('Sent: ' + message);
-        });
+        if (index !== -1) {
+            sockets.splice(index, 1);
+        }
+
+        if (disconnectedUser) {
+            connectToServerSocket().then(_ => {
+                const message = `Fechar conexão: ${disconnectedUser.name}$${socket.id}`;
+                client.write(message);
+                console.log('Sent: ' + message);
+            });
+        }
 
         console.log(`Socket ${socket.id} has disconnected`);
     });

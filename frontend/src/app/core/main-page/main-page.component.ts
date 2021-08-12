@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatSnackBar, MatTabGroup } from '@angular/material';
 import { Observable, Subscription } from 'rxjs';
@@ -12,7 +12,7 @@ import { UserService } from '../services/user.service';
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss']
 })
-export class MainPageComponent implements OnInit, OnDestroy {
+export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   user: FormGroup;
   events: string[] = [];
@@ -23,6 +23,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
   users: Observable<User[]>;
   currentUser: User = null;
   hasUser = false;
+  eventsCount = 0;
 
   private userSub: Subscription;
   private eventsSub: Subscription;
@@ -54,6 +55,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
     });
     this.eventsSub = this.userService.events.subscribe(event => {
       console.log(event);
+      this.eventsCount++;
       this.events.push(event);
     });
     this.errorsSub = this.userService.errors.subscribe(error => {
@@ -74,6 +76,14 @@ export class MainPageComponent implements OnInit, OnDestroy {
       console.log(users)
       const newDataSource = users.slice();
       this.dataSource = [...newDataSource];
+    });
+  }
+
+  ngAfterViewInit() {
+    this.tabGroup.selectedIndexChange.subscribe(tab => {
+      if (tab === 2) {
+        this.eventsCount = 0;
+      }
     });
   }
 

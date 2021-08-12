@@ -18,8 +18,8 @@ def imprimir_usuarios():
 
 #Esta função imprime as mensagens trocadas entre um cliente e o servidor da aplicação
 def imprimir_mensagens(mensagem, resposta):
-    print("Cliente: \"{0}\"".format(mensagem))
-    if(resposta != ""): print("Servidor: \"{0}\"".format(resposta))
+    print("Cliente: \"{0}\"".format(mensagem), flush=True)
+    if(resposta != ""): print("Servidor: \"{0}\"".format(resposta), flush=True)
 
 #Esta função realiza o processamento necessário para responder a uma requisição de
 #registro enviada por um cliente da aplicação

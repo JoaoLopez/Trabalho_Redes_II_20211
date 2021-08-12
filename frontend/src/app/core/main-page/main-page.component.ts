@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog, MatSnackBar, MatTabGroup } from '@angular/material';
 import { Observable, Subscription } from 'rxjs';
 import { CloseConnectionComponent } from '../close-connection/close-connection.component';
 import { CloseConnection } from '../interfaces/close-dialog.interface';
@@ -22,10 +22,14 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   users: Observable<User[]>;
   currentUser: User = null;
+  hasUser = false;
+
   private userSub: Subscription;
   private eventsSub: Subscription;
   private errorsSub: Subscription;
   private removeSub: Subscription;
+
+  @ViewChild('tabGroup', { static: false }) tabGroup: MatTabGroup;
 
   constructor(
     public dialog: MatDialog,
@@ -45,6 +49,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
     this.userSub = this.userService.currentUser.subscribe(user => {
       console.log(user);
       this.currentUser = user;
+      this.hasUser = true;
       this.user.disable();
     });
     this.eventsSub = this.userService.events.subscribe(event => {
@@ -59,7 +64,9 @@ export class MainPageComponent implements OnInit, OnDestroy {
     });
     this.removeSub = this.userService.remove.subscribe(userName => {
       console.log(userName);
+      this.tabGroup.selectedIndex = 0;
       this.currentUser = null;
+      this.hasUser = false;
       this.user.reset();
       this.user.enable();
     })

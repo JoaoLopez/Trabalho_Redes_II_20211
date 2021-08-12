@@ -20,26 +20,26 @@ if (process.platform === "win32") {
 
 process.on("SIGINT", function () {
     console.log('Encerrando');
-    ls.kill('SIGINT');
+    pythonServer.kill('SIGINT');
     process.exit();
 });
 
-const ls = spawn("python3", ["servidor.py"]);
+const pythonServer = spawn("python3", ["servidor.py"]);
 
-ls.stdout.on("data", data => {
-    console.log(`stdout: ${data}`);
+pythonServer.stdout.on("data", data => {
+    console.log(`servidor.py stdout: ${data}`);
 });
 
-ls.stderr.on("data", data => {
-    console.log(`stderr: ${data}`);
+pythonServer.stderr.on("data", data => {
+    console.log(`servidor.py stderr: ${data}`);
 });
 
-ls.on('error', (error) => {
-    console.log(`error: ${error.message}`);
+pythonServer.on('error', (error) => {
+    console.log(`servidor.py error: ${error.message}`);
 });
 
-ls.on("close", code => {
-    console.log(`child process exited with code ${code}`);
+pythonServer.on("close", code => {
+    console.log(`servidor.py :child process exited with code ${code}`);
 });
 
 const client = new net.Socket();
@@ -53,6 +53,20 @@ io.on("connection", socket => {
         console.log('Socket salvo');
         sockets.push(socket);
     }
+
+    socket.on("disconnect", (reason) => {
+        let index = sockets.indexOf(socket);
+        sockets.splice(index, 1);
+        const disconnectedUser = users.find(u => u.socketId === socket.id);
+
+        connectToServerSocket().then(_ => {
+            const message = `Fechar conexão: ${disconnectedUser.name}$${socket.id}`;
+            client.write(message);
+            console.log('Sent: ' + message);
+        });
+
+        console.log(`Socket ${socket.id} has disconnected`);
+    });
 
     socket.on("getUser", userName => {
         connectToServerSocket().then(_ => {
@@ -110,6 +124,7 @@ client.on('data', function (data) {
             const socketId = strData.split('$')[2];
             const socket = getSocket(socketId);
             const user = JSON.parse(userObj);
+            user['socketId'] = socketId;
 
             users.push(user);
             socket.emit('user', user);
@@ -123,8 +138,10 @@ client.on('data', function (data) {
             const userIndex = users.indexOf(user);
             users.splice(userIndex, 1);
 
-            socket.emit('remove', userName);
-            socket.emit('events', 'SERVIDOR: ' + data + ' ' + String(new Date()));
+            if (socket) {
+                socket.emit('remove', userName);
+                socket.emit('events', 'SERVIDOR: ' + data + ' ' + String(new Date()));
+            }
             io.emit("users", users);
         } else if (strData.startsWith('OK: ')) {
             const searchObj = strData.split('$')[1];

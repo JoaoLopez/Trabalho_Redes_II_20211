@@ -5,7 +5,7 @@
     <div class="main-page-container">
         <h1 class="mat-h1">Trabalho prático de Redes II - Etapa I</h1>
 
-        <mat-tab-group dynamicHeight>
+        <mat-tab-group #tabGroup dynamicHeight>
             <mat-tab label="Cadastro">
                 <form [formGroup]="user" (ngSubmit)="onFormSubmit()">
                     <mat-form-field>
@@ -42,7 +42,7 @@
                     <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
                 </mat-table>
             </mat-tab>
-            <mat-tab label="Consulta">
+            <mat-tab label="Consulta" [disabled]="!hasUser">
                 <app-search></app-search>
             </mat-tab>
             <mat-tab label="Eventos">

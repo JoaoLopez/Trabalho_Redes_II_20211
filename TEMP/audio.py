@@ -1,4 +1,4 @@
-import pyaudio
+import pyaudio, time
 
 CHUNK = 1024
 FORMAT = pyaudio.paInt16
@@ -10,28 +10,34 @@ g_pyaudio_instance = None
 g_stream_gravacao = None
 g_stream_reproducao = None
 
+g_quadros = []
+
 def inicializar_dispositivo_audio():
     global g_pyaudio_instance, g_stream_gravacao, g_stream_reproducao
     g_pyaudio_instance = pyaudio.PyAudio()
     g_stream_gravacao = g_pyaudio_instance.open(format=FORMAT,
                                                 channels=CHANNELS,
                                                 rate=RATE, input=True, 
-                                                frames_per_buffer=CHUNK)
+                                                frames_per_buffer=CHUNK,
+                                                stream_callback=gravar_audio)
+    g_stream_gravacao.start_stream()
+    time.sleep(1)
+    
     g_stream_reproducao = g_pyaudio_instance.open(format=FORMAT,
                                                 channels=CHANNELS,
-                                                rate=RATE, output=True)
+                                                rate=RATE, output=True,
+                                                stream_callback=reproduzir_audio)
     
-def gravar_audio():
-    quadros = []
-    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-        dados = g_stream_gravacao.read(CHUNK)
-        quadros.append(dados)
-    return quadros
+    g_stream_reproducao.start_stream()
 
-def reproduzir_audio(quadros):
-    while(len(quadros) > 0):
-        dados = quadros.pop(0)
-        g_stream_reproducao.write(dados)
+def gravar_audio(in_data, frame_count, time_info, status_flags):
+    g_quadros.append(in_data)
+    return (None, pyaudio.paContinue)
+
+def reproduzir_audio(in_data, frame_count, time_info, status):
+    data = g_quadros.pop(0)
+    if len(g_quadros) != 0: return (data, pyaudio.paContinue)
+    else: return (data, pyaudio.paComplete)
 
 def fechar_dispositivo_audio():
     g_stream_gravacao.stop_stream()
@@ -40,3 +46,13 @@ def fechar_dispositivo_audio():
     g_stream_reproducao.close()
     g_pyaudio_instance.terminate()
 
+
+def fazer_ligacao():
+    import time
+    inicializar_dispositivo_audio()
+    #quadros = gravar_audio()
+    time.sleep(5)
+    #reproduzir_audio(quadros)
+    fechar_dispositivo_audio()
+
+fazer_ligacao()

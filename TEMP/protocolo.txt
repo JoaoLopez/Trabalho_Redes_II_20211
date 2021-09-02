@@ -1,0 +1,16 @@
+Estrutura das mensagens trocadas: "TIPO_DA_MENSAGEM: INFORMACOES_DA_MENSAGEM"
+
+Possíveis mensagens trocadas entre os módulos cliente e servidor da aplicação:
+    Registro de um novo usuário:
+        Cliente: "Registrar: nome, IP, porta, socket_id"
+        Servidor: "OK: Novo usuário registrado! json_usuario socket_id"
+                  "Erro: Já há um usuário registrado com esse nome! socket_id"
+
+    Consulta de dados de outro usuário:
+        Cliente: "Consultar: nome socket_id"
+        Servidor: "OK: IP, porta socket_id"
+                "Erro: Não há nenhum usuário registrado com esse nome! socket_id"
+
+    Fechamennto de conexão:
+        Cliente: "Fechar conexão: nome socket_id"
+        Servidor: "OK: Conexão encerrada socket_id nome"

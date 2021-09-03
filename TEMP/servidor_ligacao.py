@@ -39,7 +39,7 @@ def enviar_dados_ligacao():
 def iniciar_ligacao():
     global g_usuario_ocupado
     g_usuario_ocupado = True
-    threading.Thread(target=enviar_dados_ligacao).start()
+    threading.Thread(target=enviar_dados_ligacao, daemon=True).start()
 
 def convite_aceito(resposta):
     return protocolo_ligacao.get_informacoes_da_mensagem(resposta) == "Aceito"

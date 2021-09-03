@@ -139,7 +139,7 @@ while True:
         continue
     elif(info == "Aceito"):
         print("Ligação aceita!")
-        #servidor_ligacao.iniciar_ligacao()
+        servidor_ligacao.iniciar_ligacao()
         #realizar_ligacao()
     
 

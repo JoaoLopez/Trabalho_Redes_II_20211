@@ -87,6 +87,10 @@ IP_SERVIDOR_LIGACOES = 'localhost'
 PORTA_SERVIDOR_LIGACOES = 6000
 socket_cliente = socket(AF_INET, SOCK_DGRAM)
 
+g_usuario_ocupado = False
+def get_usuario_ocupado():
+    return g_usuario_ocupado
+
 def enviar_encerramento_ligacao(): pass
 def enviar_audio(audio): pass
 def gravar_audio(): pass
@@ -100,7 +104,7 @@ def realizar_ligacao():
         if(pedido_encerramento_ligacao(info)): return
         reproduzir_audio(info)
         audio = gravar_audio()
-        enviar_audio(audio)
+        enviar_audio(audio) #ENVIA O ÁUDIO PARA O SERVIDOR DE LIGAÇÕES DO CLIENTE
         encerrar_ligacao = input("Deseja encerrar a ligação? ")
         if(encerrar_ligacao):
             enviar_encerramento_ligacao()
@@ -108,7 +112,7 @@ def realizar_ligacao():
 
 def get_resposta_convite():
     resposta, endereco = socket_cliente.recvfrom(1024)
-    return resposta
+    return resposta.decode()
 
 def enviar_convite(nome, ip, porta, ip_dest, porta_dest):
     convite = protocolo_ligacao.get_mensagem_do_tipo_convite("{0}, {1}, {2}".format(nome, ip, porta))
@@ -123,10 +127,13 @@ while True:
     mensagem, resposta = consultar_usuario(nome_dest_ligacao)
     imprimir_mensagens(mensagem, resposta)
 
-    if(protocolo_registro.get_tipo_de_mensagem(resposta) == protocolo_registro.MENSAGEM_TIPO_ERRO): continue
+    if(protocolo_registro.get_tipo_de_mensagem(resposta) == protocolo_registro.MENSAGEM_TIPO_ERRO):
+        print("Erro: Usuário não encontrado!")
+        continue
     informacoes = protocolo_registro.get_informacoes_da_mensagem(resposta)
     ip_dest, porta_dest = informacoes.split(", ")
     porta_dest = int(porta_dest)
+    porta_dest = int(input("porta_dest: "))#6000
     enviar_convite(nome_do_usuario, ip_do_usuario, porta_do_usuario, ip_dest, porta_dest)
     resposta = get_resposta_convite()
     info = protocolo_ligacao.get_informacoes_da_mensagem(resposta)
@@ -134,7 +141,8 @@ while True:
         print("Usuário destino ocupado!")
         continue
     elif(info == "Aceito"):
-        realizar_ligacao()
+        print("Ligação aceita!")
+        #realizar_ligacao()
     
 
 

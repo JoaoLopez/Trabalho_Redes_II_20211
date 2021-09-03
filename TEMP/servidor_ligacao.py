@@ -15,15 +15,31 @@ A mensagem “resposta_ao_convite” é enviada usando os dados de endereço rec
 o cliente da aplicação de ligação e para de transmitir áudio.
 ● Quando recebe a mensagem “encerrar_ligação”, para a transmissão de áudio.
 """
+
 from socket import *
 import protocolo_ligacao
+import threading
 
-IP_SERVIDOR = "localhost"
-#PORTA_SERVIDOR = 6000
-PORTA_SERVIDOR = int(input("PORTA: "))
-def get_usuario_ocupado(): return False
+def encerrar_ligacao():
+    global g_usuario_ocupado
+    g_usuario_ocupado = False
 
-def iniciar_ligacao(): print("INICIARIA LIGAÇÃO AGORA!!!!")
+def enviar_dados_ligacao():
+    print("Ligação Iniciada!")
+    import time
+    s = 0
+    while 1:
+        time.sleep(1)
+        s = s + 1
+        print("PASSARAM-SE {0} SEGUNDOS".format(s))
+        if(s == 60):
+            encerrar_ligacao()
+            break
+
+def iniciar_ligacao():
+    global g_usuario_ocupado
+    g_usuario_ocupado = True
+    threading.Thread(target=enviar_dados_ligacao).start()
 
 def convite_aceito(resposta):
     return protocolo_ligacao.get_informacoes_da_mensagem(resposta) == "Aceito"
@@ -35,32 +51,40 @@ def usuario_aceitou_convite(resposta):
 ###MÓDULO CLIENTE
 def mostrar_convite_usuario(dados_convite):
     print("Novo Convite Recebido!")
-    print("Nome: {0} IP: {1} Porta: {2}".format(dados_convite[0], dados_convite[1], dados_convite[2]))
+    print("Nome: {0} IP: {1} Porta: {2}".format(dados_convite[0],
+                                                dados_convite[1],
+                                                dados_convite[2]))
     return input("Aceitar([s]/n): ")
 
 def processar_convite(mensagem):
-    if(get_usuario_ocupado()):
+    if(g_usuario_ocupado):
         return protocolo_ligacao.get_mensagem_do_tipo_resposta_convite("Rejeitado")
     else:
-        resposta = mostrar_convite_usuario(protocolo_ligacao.get_informacoes_da_mensagem(mensagem).split(", "))
+        informacoes = protocolo_ligacao.get_informacoes_da_mensagem(mensagem).split(", ")
+        resposta = mostrar_convite_usuario(informacoes)
         resposta = "Aceito" if(usuario_aceitou_convite(resposta)) else "Rejeitado"
         return protocolo_ligacao.get_mensagem_do_tipo_resposta_convite(resposta)
 
-socket_servidor = socket(AF_INET, SOCK_DGRAM)
-socket_servidor.bind(("", PORTA_SERVIDOR))
+def executar_servidor():
+    IP_SERVIDOR = "localhost"
+    #PORTA_SERVIDOR = 6000 #COMENTEI PARA PODER FAZER TESTES NO MESMO COMPUTADOR
+    PORTA_SERVIDOR = int(input("PORTA: "))
 
-while 1:
-    mensagem, endereco = socket_servidor.recvfrom(1024)
-    mensagem = mensagem.decode()
-    print("Mensagem Recebida:", mensagem)
-    if(protocolo_ligacao.get_tipo_de_mensagem(mensagem) == protocolo_ligacao.MENSAGEM_TIPO_CONVITE):
-        resposta = processar_convite(mensagem)
-        print("Resposta Enviada:", resposta)
-        socket_servidor.sendto(resposta.encode(), endereco)
-        if(convite_aceito(resposta)): iniciar_ligacao()
+    socket_servidor = socket(AF_INET, SOCK_DGRAM)
+    socket_servidor.bind(("", PORTA_SERVIDOR))
+    while 1:
+        mensagem, endereco = socket_servidor.recvfrom(1024)
+        mensagem = mensagem.decode()
+        print("Mensagem Recebida:", mensagem)
+        if(protocolo_ligacao.get_tipo_de_mensagem(mensagem) == protocolo_ligacao.MENSAGEM_TIPO_CONVITE):
+            resposta = processar_convite(mensagem)
+            socket_servidor.sendto(resposta.encode(), endereco)
+            print("Resposta Enviada:", resposta)
+            if(convite_aceito(resposta)): iniciar_ligacao()
+    socket_servidor.close()
 
-socket_servidor.close()
-
+g_usuario_ocupado = False
+threading.Thread(target=executar_servidor, daemon=True).start()
 
 #    IF USUARIO QUER DESLIGAR: ENVIA PEDIDO DE ENCERRAMENTO DE LIGAÇÃO
 

@@ -82,14 +82,11 @@ while not usuario_registrado:
 
 #################### FIM CÓDIGO DO ARQUIVO CLIENTE.PY - ETAPA 1 ############################
 import protocolo_ligacao
+import servidor_ligacao
 
 IP_SERVIDOR_LIGACOES = 'localhost'
 PORTA_SERVIDOR_LIGACOES = 6000
 socket_cliente = socket(AF_INET, SOCK_DGRAM)
-
-g_usuario_ocupado = False
-def get_usuario_ocupado():
-    return g_usuario_ocupado
 
 def enviar_encerramento_ligacao(): pass
 def enviar_audio(audio): pass
@@ -142,6 +139,7 @@ while True:
         continue
     elif(info == "Aceito"):
         print("Ligação aceita!")
+        #servidor_ligacao.iniciar_ligacao()
         #realizar_ligacao()
     
 

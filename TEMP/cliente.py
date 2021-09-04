@@ -72,7 +72,7 @@ def fechar_conexao_com_o_servidor(nome):
 usuario_registrado = False
 nome_do_usuario = ""
 ip_do_usuario = input("Digite seu ip: ")
-porta_do_usuario = input("Digite sua porta: ")
+porta_do_usuario = int(input("Digite sua porta: "))
 while not usuario_registrado:
     nome_do_usuario = input("Digite seu nome: ")    
     mensagem, resposta = registrar_usuario(nome_do_usuario, ip_do_usuario, porta_do_usuario)
@@ -87,6 +87,7 @@ import servidor_ligacao
 IP_SERVIDOR_LIGACOES = 'localhost'
 PORTA_SERVIDOR_LIGACOES = 6000
 socket_cliente = socket(AF_INET, SOCK_DGRAM)
+socket_cliente.bind(("", porta_do_usuario))
 
 def enviar_encerramento_ligacao(): pass
 def enviar_audio(audio): pass

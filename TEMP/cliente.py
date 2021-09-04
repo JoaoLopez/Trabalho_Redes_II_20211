@@ -113,7 +113,7 @@ def get_resposta_convite():
     return resposta.decode()
 
 def enviar_convite(nome, ip, porta, ip_dest, porta_dest):
-    convite = protocolo_ligacao.get_mensagem_do_tipo_convite("{0}, {1}, {2}".format(nome, ip, porta))
+    convite = protocolo_ligacao.get_msg_convite("{0}, {1}, {2}".format(nome, ip, porta))
     socket_cliente.sendto(convite.encode(), (ip_dest, porta_dest))
 
 while True:
@@ -134,13 +134,13 @@ while True:
     porta_dest = int(input("porta_dest: "))#6000
     enviar_convite(nome_do_usuario, ip_do_usuario, porta_do_usuario, ip_dest, porta_dest)
     resposta = get_resposta_convite()
-    info = protocolo_ligacao.get_informacoes_da_mensagem(resposta)
+    info = protocolo_ligacao.get_info_msg(resposta)
     if(info == "Rejeitado"):
         print("Usuário destino ocupado!")
         continue
     elif(info == "Aceito"):
         print("Ligação aceita!")
-        servidor_ligacao.iniciar_ligacao()
+        servidor_ligacao.iniciar_ligacao([nome_do_usuario, ip_do_usuario, porta_do_usuario])
         #realizar_ligacao()
     
 

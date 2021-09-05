@@ -19,7 +19,6 @@ o cliente da aplicação de ligação e para de transmitir áudio.
 from socket import *
 import protocolo_ligacao as protocolo
 import threading
-
 import audio
 
 def emissor_msg_valido(emissor):
@@ -33,13 +32,9 @@ def encerrar_ligacao():
 def enviar_dados_ligacao():
     print("Ligação Iniciada!")
     socket_ligacao = socket(AF_INET, SOCK_DGRAM)
-    #import time
-    #time.sleep(1)
-    #audio.iniciar_reproducao_audio()
     while g_usuario_dest:
         if(len(audio.g_quadros) > 0):
             socket_ligacao.sendto(audio.g_quadros.pop(0), (g_usuario_dest["ip"], g_usuario_dest["porta"]))
-            #socket_ligacao.sendto(audio.g_quadros[0], (g_usuario_dest["ip"], g_usuario_dest["porta"]))
             print("ÁUDIO ENVIADO!")
     socket_ligacao.close()
 

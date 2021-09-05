@@ -83,6 +83,7 @@ while not usuario_registrado:
 #################### FIM CÓDIGO DO ARQUIVO CLIENTE.PY - ETAPA 1 ############################
 import protocolo_ligacao
 import servidor_ligacao
+import audio
 
 IP_SERVIDOR_LIGACOES = 'localhost'
 PORTA_SERVIDOR_LIGACOES = 6000
@@ -139,14 +140,10 @@ while True:
         print("Usuário destino ocupado!")
         continue
     elif(info == "Aceito"):
-        import audio
         print("Ligação aceita!")
-        import time
-        a = time.time()
-        while time.time() - a < 1:
+        for i in range(10):
             dados, endereco = socket_cliente.recvfrom(4096)
             audio.g_quadros.append(dados)
-        print("LENGTH:", len(audio.g_quadros))
         audio.iniciar_reproducao_audio()
         while 1:
             dados, endereco = socket_cliente.recvfrom(4096)

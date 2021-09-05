@@ -139,9 +139,22 @@ while True:
         print("Usuário destino ocupado!")
         continue
     elif(info == "Aceito"):
+        import audio
         print("Ligação aceita!")
-        servidor_ligacao.iniciar_ligacao([nome_do_usuario, ip_do_usuario, porta_do_usuario])
-        #realizar_ligacao()
+        import time
+        a = time.time()
+        while time.time() - a < 1:
+            dados, endereco = socket_cliente.recvfrom(4096)
+            audio.g_quadros.append(dados)
+        print("LENGTH:", len(audio.g_quadros))
+        audio.iniciar_reproducao_audio()
+        while 1:
+            dados, endereco = socket_cliente.recvfrom(4096)
+            audio.g_quadros.append(dados)
+            print("ÁUDIO RECEBIDO!!!!!!!!")
+
+        #TEMPORARIAMENTE servidor_ligacao.iniciar_ligacao([nome_do_usuario, ip_do_usuario, porta_do_usuario])
+        
     
 
 

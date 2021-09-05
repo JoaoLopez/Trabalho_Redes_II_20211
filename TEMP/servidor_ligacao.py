@@ -20,46 +20,37 @@ from socket import *
 import protocolo_ligacao as protocolo
 import threading
 
+import audio
+
+def emissor_msg_valido(emissor):
+    return g_usuario_dest["ip"] == emissor[0] and \
+           g_usuario_dest["porta"] == emissor[1]
+
 def encerrar_ligacao():
     global g_usuario_dest
     g_usuario_dest = None
 
 def enviar_dados_ligacao():
     print("Ligação Iniciada!")
-    #socket_ligacao = socket(AF_INET, SOCK_DGRAM)
-    #socket_ligacao.bind(("", porta_usuario_origem))
-    """
-    while 1:
-        socket_ligacao.sendto(dados, (ip_usuario, porta_usuario))
-        mensagem = mensagem.decode()
-        print("Mensagem Recebida:", mensagem)
-        if(protocolo.get_tipo_de_mensagem(mensagem) == protocolo.MENSAGEM_TIPO_CONVITE):
-            resposta = processar_convite(mensagem)
-            socket_servidor.sendto(resposta.encode(), endereco)
-            print("Resposta Enviada:", resposta)
-            if(convite_aceito(resposta)): iniciar_ligacao()
-    socket_servidor.close()
-    """
-    import time
-    s = 0
-    while 1:
-        time.sleep(1)
-        s = s + 1
-        print("PASSARAM-SE {0} SEGUNDOS".format(s))
-        if(s == 60):
-            encerrar_ligacao()
-            break
-
-def emissor_msg_valido(emissor):
-    return g_usuario_dest["ip"] == emissor[0] and \
-           g_usuario_dest["porta"] == emissor[1]
+    socket_ligacao = socket(AF_INET, SOCK_DGRAM)
+    #import time
+    #time.sleep(1)
+    #audio.iniciar_reproducao_audio()
+    while g_usuario_dest:
+        if(len(audio.g_quadros) > 0):
+            socket_ligacao.sendto(audio.g_quadros.pop(0), (g_usuario_dest["ip"], g_usuario_dest["porta"]))
+            #socket_ligacao.sendto(audio.g_quadros[0], (g_usuario_dest["ip"], g_usuario_dest["porta"]))
+            print("ÁUDIO ENVIADO!")
+    socket_ligacao.close()
 
 
 def iniciar_ligacao(dados_usuario_destino):
     global g_usuario_dest
     g_usuario_dest = {"nome": dados_usuario_destino[0],
                       "ip": dados_usuario_destino[1],
-                      "porta": dados_usuario_destino[2]}
+                      "porta": int(dados_usuario_destino[2])}
+    audio.iniciar_gravacao_audio()
+    threading.Thread(target=enviar_dados_ligacao, daemon=True).start()
 
 def convite_aceito(resp): return protocolo.get_info_msg(resp) == "Aceito"
 
@@ -99,6 +90,10 @@ def executar_servidor():
             resposta = processar_convite(info)
             if(convite_aceito(resposta)): iniciar_ligacao(info)
             socket_servidor.sendto(resposta.encode(), endereco)
+            print("Resposta Enviada:", resposta)
+        elif(protocolo.get_tipo_msg(mensagem) == protocolo.MENSAGEM_ENCERRAR_LIGACAO):
+            if(ligacao_em_andamento() and emissor_msg_valido(endereco)):
+                encerrar_ligacao()
         """
         elif(protocolo.get_tipo_msg(mensagem) == protocolo.MENSAGEM_ENVIAR_DADOS):
             if(ligacao_em_andamento() and emissor_msg_valido(endereco)):
@@ -107,7 +102,8 @@ def executar_servidor():
                 resposta = protocolo.get_msg_encerrar_ligacao()
                 socket_servidor.sendto(resposta.encode(), endereco)
         """
-        print("Resposta Enviada:", resposta)
+        
+        
     
     socket_servidor.close()
 

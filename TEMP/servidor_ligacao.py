@@ -22,10 +22,12 @@ import threading
 import audio
 
 def emissor_msg_valido(emissor):
+    print("\n\n\n\n", emissor, "\n\n\n\n")
     return g_usuario_dest["ip"] == emissor[0] and \
            g_usuario_dest["porta"] == emissor[1]
 
 def encerrar_ligacao():
+    print("oi")
     global g_usuario_dest
     g_usuario_dest = None
 
@@ -36,7 +38,9 @@ def enviar_dados_ligacao():
         if(len(audio.g_quadros) > 0):
             socket_ligacao.sendto(audio.g_quadros.pop(0), (g_usuario_dest["ip"], g_usuario_dest["porta"]))
             print("ÁUDIO ENVIADO!")
+            print(g_usuario_dest)
     socket_ligacao.close()
+    audio.encerrar_gravacao_audio()
 
 
 def iniciar_ligacao(dados_usuario_destino):
@@ -87,7 +91,9 @@ def executar_servidor():
             socket_servidor.sendto(resposta.encode(), endereco)
             print("Resposta Enviada:", resposta)
         elif(protocolo.get_tipo_msg(mensagem) == protocolo.MENSAGEM_ENCERRAR_LIGACAO):
+            print("IF FORA")
             if(ligacao_em_andamento() and emissor_msg_valido(endereco)):
+                print("IF DENTRO")
                 encerrar_ligacao()
         """
         elif(protocolo.get_tipo_msg(mensagem) == protocolo.MENSAGEM_ENVIAR_DADOS):

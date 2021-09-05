@@ -33,6 +33,7 @@ para o servidor de ligação e para de transmitir áudio.
 
 ################# CÓDIGO DO ARQUIVO CLIENTE.PY - ETAPA 1 #####################
 from socket import *
+import threading
 import protocolo_registro
 
 ip_do_servidor = input("Digite o endereço IP do servidor: ")
@@ -109,6 +110,21 @@ def realizar_ligacao():
             enviar_encerramento_ligacao()
             return
 
+g_encerrar_ligacao = False
+def receber_dados_ligacao():
+    #socket_ligacao = socket(AF_INET, SOCK_DGRAM)
+    #socket_ligacao.bind(("", porta_do_usuario))
+    for i in range(10):
+        dados, endereco = socket_cliente.recvfrom(4096)
+        audio.g_quadros.append(dados)
+    audio.iniciar_reproducao_audio()
+    while not g_encerrar_ligacao:#servidor_ligacao.ligacao_em_andamento() and not g_encerrar_ligacao:
+        dados, endereco = socket_cliente.recvfrom(4096)
+        audio.g_quadros.append(dados)
+        print("ÁUDIO RECEBIDO!!!!!!!!")
+    socket_cliente.sendto(protocolo_ligacao.get_msg_encerrar_ligacao().encode(), (ip_dest, porta_dest))
+
+
 def get_resposta_convite():
     resposta, endereco = socket_cliente.recvfrom(1024)
     return resposta.decode()
@@ -140,19 +156,19 @@ while True:
         print("Usuário destino ocupado!")
         continue
     elif(info == "Aceito"):
+        
         print("Ligação aceita!")
-        for i in range(10):
-            dados, endereco = socket_cliente.recvfrom(4096)
-            audio.g_quadros.append(dados)
-        audio.iniciar_reproducao_audio()
-        while 1:
-            dados, endereco = socket_cliente.recvfrom(4096)
-            audio.g_quadros.append(dados)
-            print("ÁUDIO RECEBIDO!!!!!!!!")
+        #receber_dados_ligacao()
+        threading.Thread(target=receber_dados_ligacao).start()
+        input("Aperte enter para encerrar a ligação:")
+        g_encerrar_ligacao = True
+        #socket_cliente.
+
 
         #TEMPORARIAMENTE servidor_ligacao.iniciar_ligacao([nome_do_usuario, ip_do_usuario, porta_do_usuario])
         
-    
+
+
 
 
 """

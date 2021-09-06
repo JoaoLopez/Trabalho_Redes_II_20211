@@ -116,8 +116,8 @@ if __name__ == "__main__":
         print("Nome: {0} IP: {1} Porta: {2}".format(info[0], info[1], info[2]))
         resp = input("Aceitar([s]/n): ")
         util.g_resp_convite[0] = resp
-        #if(resp == "s" or resp == ""):
-        #    realizar_ligacao()
+        if(resp == "s" or resp == ""):
+            realizar_ligacao()
 
     def enviar_convite(nome, ip, porta, ip_dest, porta_dest, socket):
         convite = protocolo_ligacao.get_msg_convite("{0}, {1}, {2}".format(nome, ip, porta))
@@ -150,5 +150,5 @@ if __name__ == "__main__":
             continue
         elif(info == "Aceito"):
             realizar_ligacao()
-            #servidor_ligacao.iniciar_ligacao([nome_dest_ligacao, ip_usuario_dest, porta_usuario_dest])
+            servidor_ligacao.iniciar_ligacao([nome_dest_ligacao, ip_usuario_dest, porta_usuario_dest])
     socket_cliente.close()

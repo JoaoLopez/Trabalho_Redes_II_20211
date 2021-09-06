@@ -150,6 +150,6 @@ if __name__ == "__main__":
             print("Usuário destino ocupado!")
             continue
         elif(info == "Aceito"):
-            #servidor_ligacao.iniciar_ligacao([nome_dest_ligacao, ip_usuario_dest, porta_usuario_dest])
+            servidor_ligacao.iniciar_ligacao([nome_dest_ligacao, ip_usuario_dest, porta_usuario_dest])
             realizar_ligacao()
     socket_cliente.close()

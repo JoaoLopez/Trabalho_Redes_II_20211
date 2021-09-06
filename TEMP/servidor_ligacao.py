@@ -58,12 +58,14 @@ def mostrar_convite_usuario(info):
     print("Nome: {0} IP: {1} Porta: {2}".format(info[0], info[1], info[2]))
     return input("Aceitar([s]/n): ")
 """
-g_resp_convite = [None]
+
 def mostrar_convite_usuario(info):
-    import cliente, time
-    cliente.g_convite_recebido[0] = info
-    while g_resp_convite[0] is None: time.sleep(0.1)
-    return g_resp_convite
+    print("oi")
+    import util, time
+    
+    util.g_convite_recebido[0] = info
+    while util.g_resp_convite[0] is None: time.sleep(0.1)
+    return util.g_resp_convite[0]
 
 def processar_convite(info):
     def usuario_aceitou_convite(resp): return resp == "s" or resp == ""

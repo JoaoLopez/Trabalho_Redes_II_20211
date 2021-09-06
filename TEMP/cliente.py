@@ -30,7 +30,6 @@ para o servidor de ligação e para de transmitir áudio.
 ● Quando recebe a mensagem “encerrar_ligação”, para a transmissão de áudio.
 """
 ###DEPOIS ESSE ARQUIVO DEVE SER COMBINADO AO ARQUIVO CLIENT.JS!!!!!
-g_convite_recebido = [None]
 if __name__ == "__main__":
     ################# CÓDIGO DO ARQUIVO CLIENTE.PY - ETAPA 1 #####################
     from socket import *
@@ -86,6 +85,7 @@ if __name__ == "__main__":
     import protocolo_ligacao
     import servidor_ligacao
     import audio
+    import util
 
     PORTA_SERVIDOR_LIGACOES = 6000
     socket_cliente = socket(AF_INET, SOCK_DGRAM)
@@ -115,9 +115,9 @@ if __name__ == "__main__":
         print("Novo Convite Recebido!")
         print("Nome: {0} IP: {1} Porta: {2}".format(info[0], info[1], info[2]))
         resp = input("Aceitar([s]/n): ")
-        servidor_ligacao.g_resp_convite[0] = resp
-        if(resp == "s" or resp == ""):
-            realizar_ligacao()
+        util.g_resp_convite[0] = resp
+        #if(resp == "s" or resp == ""):
+        #    realizar_ligacao()
 
     def enviar_convite(nome, ip, porta, ip_dest, porta_dest, socket):
         convite = protocolo_ligacao.get_msg_convite("{0}, {1}, {2}".format(nome, ip, porta))
@@ -126,7 +126,9 @@ if __name__ == "__main__":
         return resposta.decode()
 
     while True:
-        if(g_convite_recebido[0]): mostrar_convite_usuario(g_convite_recebido[0])
+        if(util.g_convite_recebido[0]):
+            print("ENTROU")
+            mostrar_convite_usuario(util.g_convite_recebido[0])
         nome_dest_ligacao= input("Para quem você deseja ligar? (digite \"quit\" para sair): ")
         if(nome_dest_ligacao == "quit"):
             mensagem = fechar_conexao_com_o_servidor(nome_do_usuario)
@@ -148,5 +150,5 @@ if __name__ == "__main__":
             continue
         elif(info == "Aceito"):
             realizar_ligacao()
-            servidor_ligacao.iniciar_ligacao([nome_dest_ligacao, ip_usuario_dest, porta_usuario_dest])
+            #servidor_ligacao.iniciar_ligacao([nome_dest_ligacao, ip_usuario_dest, porta_usuario_dest])
     socket_cliente.close()

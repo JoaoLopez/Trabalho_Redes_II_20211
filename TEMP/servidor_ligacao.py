@@ -21,34 +21,31 @@ import protocolo_ligacao as protocolo
 import threading
 import audio
 
-def emissor_msg_valido(emissor):
-    print("\n\n\n\n", emissor, "\n\n\n\n")
-    return g_usuario_dest["ip"] == emissor[0] and \
-           g_usuario_dest["porta"] == emissor[1]
-
 def encerrar_ligacao():
-    print("oi")
     global g_usuario_dest
     g_usuario_dest = None
 
+def emissor_msg_valido(emissor):
+    return g_usuario_dest["ip"] == emissor[0] and \
+           g_usuario_dest["porta"] == emissor[1]
+
+def ligacao_em_andamento(): return g_usuario_dest
+
 def enviar_dados_ligacao():
-    print("Ligação Iniciada!")
+    audio.iniciar_gravacao_audio()
     socket_ligacao = socket(AF_INET, SOCK_DGRAM)
-    while g_usuario_dest:
+    while ligacao_em_andamento():
         if(len(audio.g_quadros) > 0):
             socket_ligacao.sendto(audio.g_quadros.pop(0), (g_usuario_dest["ip"], g_usuario_dest["porta"]))
             print("ÁUDIO ENVIADO!")
-            print(g_usuario_dest)
     socket_ligacao.close()
     audio.encerrar_gravacao_audio()
-
 
 def iniciar_ligacao(dados_usuario_destino):
     global g_usuario_dest
     g_usuario_dest = {"nome": dados_usuario_destino[0],
                       "ip": dados_usuario_destino[1],
                       "porta": int(dados_usuario_destino[2])}
-    audio.iniciar_gravacao_audio()
     threading.Thread(target=enviar_dados_ligacao, daemon=True).start()
 
 def convite_aceito(resp): return protocolo.get_info_msg(resp) == "Aceito"
@@ -60,11 +57,8 @@ def mostrar_convite_usuario(info):
     print("Nome: {0} IP: {1} Porta: {2}".format(info[0], info[1], info[2]))
     return input("Aceitar([s]/n): ")
 
-def ligacao_em_andamento(): return g_usuario_dest
-
 def processar_convite(info):
     def usuario_aceitou_convite(resp): return resp == "s" or resp == ""
-
     if(ligacao_em_andamento()):
         return protocolo.get_msg_resp_convite("Rejeitado")
     else:
@@ -91,26 +85,9 @@ def executar_servidor():
             socket_servidor.sendto(resposta.encode(), endereco)
             print("Resposta Enviada:", resposta)
         elif(protocolo.get_tipo_msg(mensagem) == protocolo.MENSAGEM_ENCERRAR_LIGACAO):
-            print("IF FORA")
             if(ligacao_em_andamento() and emissor_msg_valido(endereco)):
-                print("IF DENTRO")
                 encerrar_ligacao()
-        """
-        elif(protocolo.get_tipo_msg(mensagem) == protocolo.MENSAGEM_ENVIAR_DADOS):
-            if(ligacao_em_andamento() and emissor_msg_valido(endereco)):
-                enviar_dados_ligacao()
-            else:
-                resposta = protocolo.get_msg_encerrar_ligacao()
-                socket_servidor.sendto(resposta.encode(), endereco)
-        """
-        
-        
-    
     socket_servidor.close()
 
 g_usuario_dest = None
 threading.Thread(target=executar_servidor, daemon=True).start()
-
-#    IF USUARIO QUER DESLIGAR: ENVIA PEDIDO DE ENCERRAMENTO DE LIGAÇÃO
-
-

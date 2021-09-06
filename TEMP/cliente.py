@@ -30,27 +30,7 @@ para o servidor de ligação e para de transmitir áudio.
 ● Quando recebe a mensagem “encerrar_ligação”, para a transmissão de áudio.
 """
 ###DEPOIS ESSE ARQUIVO DEVE SER COMBINADO AO ARQUIVO CLIENT.JS!!!!!
-
-g_encerrar_ligacao = False
-def receber_dados_ligacao():
-    #socket_ligacao = socket(AF_INET, SOCK_DGRAM)
-    #socket_ligacao.bind(("", porta_do_usuario))
-    for i in range(10):
-        dados, endereco = socket_cliente.recvfrom(4096)
-        audio.g_quadros.append(dados)
-    audio.iniciar_reproducao_audio()
-    while not g_encerrar_ligacao:#servidor_ligacao.ligacao_em_andamento() and not g_encerrar_ligacao:
-        dados, endereco = socket_cliente.recvfrom(4096)
-        audio.g_quadros.append(dados)
-        print("ÁUDIO RECEBIDO!!!!!!!!")
-    socket_cliente.sendto(protocolo_ligacao.get_msg_encerrar_ligacao().encode(), (ip_usuario_dest, PORTA_SERVIDOR_LIGACOES))
-
-def realizar_ligacao():
-    threading.Thread(target=receber_dados_ligacao).start()
-    input("Aperte enter para encerrar a ligação:")
-    global g_encerrar_ligacao
-    g_encerrar_ligacao = True
-
+g_convite_recebido = None
 if __name__ == "__main__":
     ################# CÓDIGO DO ARQUIVO CLIENTE.PY - ETAPA 1 #####################
     from socket import *
@@ -111,6 +91,34 @@ if __name__ == "__main__":
     socket_cliente = socket(AF_INET, SOCK_DGRAM)
     socket_cliente.bind(("", porta_do_usuario))
 
+    g_encerrar_ligacao = False
+    def receber_dados_ligacao():
+        #socket_ligacao = socket(AF_INET, SOCK_DGRAM)
+        #socket_ligacao.bind(("", porta_do_usuario))
+        for i in range(10):
+            dados, endereco = socket_cliente.recvfrom(4096)
+            audio.g_quadros.append(dados)
+        audio.iniciar_reproducao_audio()
+        while not g_encerrar_ligacao:#servidor_ligacao.ligacao_em_andamento() and not g_encerrar_ligacao:
+            dados, endereco = socket_cliente.recvfrom(4096)
+            audio.g_quadros.append(dados)
+            print("ÁUDIO RECEBIDO!!!!!!!!")
+        socket_cliente.sendto(protocolo_ligacao.get_msg_encerrar_ligacao().encode(), (ip_usuario_dest, PORTA_SERVIDOR_LIGACOES))
+
+    def realizar_ligacao():
+        threading.Thread(target=receber_dados_ligacao).start()
+        input("Aperte enter para encerrar a ligação:")
+        global g_encerrar_ligacao
+        g_encerrar_ligacao = True
+
+    def mostrar_convite_usuario(info):
+        print("Novo Convite Recebido!")
+        print("Nome: {0} IP: {1} Porta: {2}".format(info[0], info[1], info[2]))
+        resp = input("Aceitar([s]/n): ")
+        servidor_ligacao.g_resp_convite = resp
+        if(resp == "s" or resp == ""):
+            realizar_ligacao()
+
     def enviar_convite(nome, ip, porta, ip_dest, porta_dest, socket):
         convite = protocolo_ligacao.get_msg_convite("{0}, {1}, {2}".format(nome, ip, porta))
         socket.sendto(convite.encode(), (ip_dest, porta_dest))
@@ -118,6 +126,7 @@ if __name__ == "__main__":
         return resposta.decode()
 
     while True:
+        if(g_convite_recebido): mostrar_convite_usuario(g_convite_recebido)
         nome_dest_ligacao= input("Para quem você deseja ligar? (digite \"quit\" para sair): ")
         if(nome_dest_ligacao == "quit"):
             mensagem = fechar_conexao_com_o_servidor(nome_do_usuario)

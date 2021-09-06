@@ -52,10 +52,18 @@ def convite_aceito(resp): return protocolo.get_info_msg(resp) == "Aceito"
 
 ###QUANDO A GUI ESTIVER FUNCIONANDO ACHO QUE ESSA FUNÇÃO DEVERIA ESTAR NO
 ###MÓDULO CLIENTE
+"""
 def mostrar_convite_usuario(info):
     print("Novo Convite Recebido!")
     print("Nome: {0} IP: {1} Porta: {2}".format(info[0], info[1], info[2]))
     return input("Aceitar([s]/n): ")
+"""
+g_resp_convite = None
+def mostrar_convite_usuario(info):
+    import cliente, time
+    cliente.g_convite_recebido = info
+    while g_resp_convite is None: time.sleep(0.1)
+    return g_resp_convite
 
 def processar_convite(info):
     def usuario_aceitou_convite(resp): return resp == "s" or resp == ""
@@ -85,8 +93,8 @@ def executar_servidor():
             print("Resposta Enviada:", resposta)
             if(convite_aceito(resposta)):
                 iniciar_ligacao(info)
-                import cliente
-                cliente.realizar_ligacao()
+                ##################import cliente
+                #################cliente.realizar_ligacao()
         elif(protocolo.get_tipo_msg(mensagem) == protocolo.MENSAGEM_ENCERRAR_LIGACAO):
             if(ligacao_em_andamento() and emissor_msg_valido(endereco)):
                 encerrar_ligacao()

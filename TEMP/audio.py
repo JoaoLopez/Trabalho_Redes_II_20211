@@ -9,7 +9,8 @@ RECORD_SECONDS = 5
 g_pyaudio_instance = None
 g_stream_gravacao = None
 g_stream_reproducao = None
-g_quadros = []
+g_quadros_input = []
+g_quadros_output = []
 
 def inicializar_dispositivo_audio():
     global g_pyaudio_instance, g_stream_gravacao, g_stream_reproducao
@@ -49,12 +50,12 @@ def iniciar_reproducao_audio():
     g_stream_reproducao.start_stream()
 
 def gravar_audio(in_data, frame_count, time_info, status_flags):
-    g_quadros.append(in_data)
+    g_quadros_input.append(in_data)
     return (None, pyaudio.paContinue)
 
 def reproduzir_audio(in_data, frame_count, time_info, status):
-    data = g_quadros.pop(0)
-    if len(g_quadros) != 0: return (data, pyaudio.paContinue)
+    data = g_quadros_output.pop(0)
+    if len(g_quadros_output) != 0: return (data, pyaudio.paContinue)
     else: return (data, pyaudio.paComplete)
 
 def fechar_dispositivo_audio():
@@ -77,7 +78,7 @@ def fazer_ligacao():
     #inicializar_dispositivo_audio()
     iniciar_gravacao_audio()
     time.sleep(1)
-    print(len(g_quadros))
+    print(len(g_quadros_input))
     iniciar_reproducao_audio()
     #quadros = gravar_audio()
     time.sleep(60)

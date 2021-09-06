@@ -98,11 +98,11 @@ if __name__ == "__main__":
         #socket_ligacao.bind(("", porta_do_usuario))
         for i in range(30):
             dados, endereco = socket_cliente.recvfrom(4096)
-            audio.g_quadros.append(dados)
+            audio.g_quadros_output.append(dados)
         audio.iniciar_reproducao_audio()
         while not g_encerrar_ligacao:#servidor_ligacao.ligacao_em_andamento() and not g_encerrar_ligacao:
             dados, endereco = socket_cliente.recvfrom(4096)
-            audio.g_quadros.append(dados)
+            audio.g_quadros_output.append(dados)
             #print("ÁUDIO RECEBIDO!!!!!!!!")
         socket_cliente.sendto(protocolo_ligacao.get_msg_encerrar_ligacao().encode(), (ip_usuario_dest, PORTA_SERVIDOR_LIGACOES))
 

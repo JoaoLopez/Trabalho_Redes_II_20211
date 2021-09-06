@@ -36,8 +36,8 @@ def enviar_dados_ligacao():
     audio.iniciar_gravacao_audio()
     socket_ligacao = socket(AF_INET, SOCK_DGRAM)
     while ligacao_em_andamento():
-        if(len(audio.g_quadros) > 0):
-            socket_ligacao.sendto(audio.g_quadros.pop(0), (g_usuario_dest["ip"], g_usuario_dest["porta"]))
+        if(len(audio.g_quadros_input) > 0):
+            socket_ligacao.sendto(audio.g_quadros_input.pop(0), (g_usuario_dest["ip"], g_usuario_dest["porta"]))
             #print("ÁUDIO ENVIADO!")
     socket_ligacao.close()
     audio.encerrar_gravacao_audio()

@@ -30,7 +30,7 @@ para o servidor de ligação e para de transmitir áudio.
 ● Quando recebe a mensagem “encerrar_ligação”, para a transmissão de áudio.
 """
 ###DEPOIS ESSE ARQUIVO DEVE SER COMBINADO AO ARQUIVO CLIENT.JS!!!!!
-g_convite_recebido = None
+g_convite_recebido = [None]
 if __name__ == "__main__":
     ################# CÓDIGO DO ARQUIVO CLIENTE.PY - ETAPA 1 #####################
     from socket import *
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         print("Novo Convite Recebido!")
         print("Nome: {0} IP: {1} Porta: {2}".format(info[0], info[1], info[2]))
         resp = input("Aceitar([s]/n): ")
-        servidor_ligacao.g_resp_convite = resp
+        servidor_ligacao.g_resp_convite[0] = resp
         if(resp == "s" or resp == ""):
             realizar_ligacao()
 
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         return resposta.decode()
 
     while True:
-        if(g_convite_recebido): mostrar_convite_usuario(g_convite_recebido)
+        if(g_convite_recebido[0]): mostrar_convite_usuario(g_convite_recebido[0])
         nome_dest_ligacao= input("Para quem você deseja ligar? (digite \"quit\" para sair): ")
         if(nome_dest_ligacao == "quit"):
             mensagem = fechar_conexao_com_o_servidor(nome_do_usuario)

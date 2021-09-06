@@ -81,9 +81,12 @@ def executar_servidor():
         if(protocolo.get_tipo_msg(mensagem) == protocolo.MENSAGEM_CONVITE):
             info = get_info_convite(mensagem)
             resposta = processar_convite(info)
-            if(convite_aceito(resposta)): iniciar_ligacao(info)
             socket_servidor.sendto(resposta.encode(), endereco)
             print("Resposta Enviada:", resposta)
+            if(convite_aceito(resposta)):
+                iniciar_ligacao(info)
+                import cliente
+                cliente.realizar_ligacao()
         elif(protocolo.get_tipo_msg(mensagem) == protocolo.MENSAGEM_ENCERRAR_LIGACAO):
             if(ligacao_em_andamento() and emissor_msg_valido(endereco)):
                 encerrar_ligacao()

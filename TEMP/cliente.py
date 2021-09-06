@@ -31,85 +31,6 @@ para o servidor de ligação e para de transmitir áudio.
 """
 ###DEPOIS ESSE ARQUIVO DEVE SER COMBINADO AO ARQUIVO CLIENT.JS!!!!!
 
-################# CÓDIGO DO ARQUIVO CLIENTE.PY - ETAPA 1 #####################
-from socket import *
-import threading
-import protocolo_registro
-
-ip_do_servidor = input("Digite o endereço IP do servidor: ")
-porta_do_servidor = 5000
-
-def enviar_mensagem_e_aguardar_resposta(mensagem):
-    socket_cliente = socket(AF_INET, SOCK_STREAM)
-    socket_cliente.connect((ip_do_servidor, porta_do_servidor))
-    socket_cliente.send(mensagem.encode())
-    resposta = socket_cliente.recv(1024).decode()
-    socket_cliente.close()
-    return resposta
-
-def enviar_mensagem(mensagem):
-    socket_cliente = socket(AF_INET, SOCK_STREAM)
-    socket_cliente.connect((ip_do_servidor, porta_do_servidor))
-    socket_cliente.send(mensagem.encode())
-    socket_cliente.close()
-
-def imprimir_mensagens(mensagem, resposta):
-    print("Cliente: \"{0}\"".format(mensagem))
-    if(resposta != ""): print("Servidor: \"{0}\"".format(resposta))
-
-def registrar_usuario(nome, ip, porta):
-    mensagem = protocolo_registro.get_mensagem_do_tipo_registrar("{0}, {1}, {2}".format(nome, ip, porta))
-    return mensagem, enviar_mensagem_e_aguardar_resposta(mensagem)
-    
-def consultar_usuario(nome):
-    mensagem = protocolo_registro.get_mensagem_do_tipo_consultar(nome)
-    return mensagem, enviar_mensagem_e_aguardar_resposta(mensagem)
-
-def fechar_conexao_com_o_servidor(nome):
-    mensagem = protocolo_registro.get_mensagem_do_tipo_fechar_conexao(nome)
-    enviar_mensagem(mensagem)
-    return mensagem
-
-usuario_registrado = False
-nome_do_usuario = ""
-ip_do_usuario = input("Digite seu ip: ")
-porta_do_usuario = int(input("Digite sua porta: "))
-while not usuario_registrado:
-    nome_do_usuario = input("Digite seu nome: ")    
-    mensagem, resposta = registrar_usuario(nome_do_usuario, ip_do_usuario, porta_do_usuario)
-    if(protocolo_registro.get_tipo_de_mensagem(resposta) == protocolo_registro.MENSAGEM_TIPO_OK):
-        usuario_registrado = True
-    imprimir_mensagens(mensagem, resposta)
-
-#################### FIM CÓDIGO DO ARQUIVO CLIENTE.PY - ETAPA 1 ############################
-import protocolo_ligacao
-import servidor_ligacao
-import audio
-
-IP_SERVIDOR_LIGACOES = 'localhost'
-PORTA_SERVIDOR_LIGACOES = 6000
-socket_cliente = socket(AF_INET, SOCK_DGRAM)
-socket_cliente.bind(("", porta_do_usuario))
-
-def enviar_encerramento_ligacao(): pass
-def enviar_audio(audio): pass
-def gravar_audio(): pass
-def reproduzir_audio(): pass
-def pedido_encerramento_ligacao(info): pass
-def receber_informacoes(): pass
-
-def realizar_ligacao():
-    while True:
-        info = receber_informacoes()
-        if(pedido_encerramento_ligacao(info)): return
-        reproduzir_audio(info)
-        audio = gravar_audio()
-        enviar_audio(audio) #ENVIA O ÁUDIO PARA O SERVIDOR DE LIGAÇÕES DO CLIENTE
-        encerrar_ligacao = input("Deseja encerrar a ligação? ")
-        if(encerrar_ligacao):
-            enviar_encerramento_ligacao()
-            return
-
 g_encerrar_ligacao = False
 def receber_dados_ligacao():
     #socket_ligacao = socket(AF_INET, SOCK_DGRAM)
@@ -122,71 +43,101 @@ def receber_dados_ligacao():
         dados, endereco = socket_cliente.recvfrom(4096)
         audio.g_quadros.append(dados)
         print("ÁUDIO RECEBIDO!!!!!!!!")
-    socket_cliente.sendto(protocolo_ligacao.get_msg_encerrar_ligacao().encode(), (ip_dest, porta_dest))
+    socket_cliente.sendto(protocolo_ligacao.get_msg_encerrar_ligacao().encode(), (ip_usuario_dest, PORTA_SERVIDOR_LIGACOES))
 
+def realizar_ligacao():
+    threading.Thread(target=receber_dados_ligacao).start()
+    input("Aperte enter para encerrar a ligação:")
+    global g_encerrar_ligacao
+    g_encerrar_ligacao = True
 
-def get_resposta_convite():
-    resposta, endereco = socket_cliente.recvfrom(1024)
-    return resposta.decode()
+if __name__ == "__main__":
+    ################# CÓDIGO DO ARQUIVO CLIENTE.PY - ETAPA 1 #####################
+    from socket import *
+    import threading
+    import protocolo_registro
 
-def enviar_convite(nome, ip, porta, ip_dest, porta_dest):
-    convite = protocolo_ligacao.get_msg_convite("{0}, {1}, {2}".format(nome, ip, porta))
-    socket_cliente.sendto(convite.encode(), (ip_dest, porta_dest))
+    ip_do_servidor = input("Digite o endereço IP do servidor: ")
+    porta_do_servidor = 5000
 
-while True:
-    nome_dest_ligacao= input("Para quem você deseja ligar? (digite \"quit\" para sair): ")
-    if(nome_dest_ligacao == "quit"):
-        mensagem = fechar_conexao_com_o_servidor(nome_do_usuario)
-        imprimir_mensagens(mensagem, "")
-        break
-    mensagem, resposta = consultar_usuario(nome_dest_ligacao)
-    imprimir_mensagens(mensagem, resposta)
+    def enviar_mensagem_e_aguardar_resposta(mensagem):
+        socket_cliente = socket(AF_INET, SOCK_STREAM)
+        socket_cliente.connect((ip_do_servidor, porta_do_servidor))
+        socket_cliente.send(mensagem.encode())
+        resposta = socket_cliente.recv(1024).decode()
+        socket_cliente.close()
+        return resposta
 
-    if(protocolo_registro.get_tipo_de_mensagem(resposta) == protocolo_registro.MENSAGEM_TIPO_ERRO):
-        print("Erro: Usuário não encontrado!")
-        continue
-    informacoes = protocolo_registro.get_informacoes_da_mensagem(resposta)
-    ip_dest, porta_dest = informacoes.split(", ")
-    porta_dest = int(porta_dest)
-    porta_dest = int(input("porta_dest: "))#6000
-    enviar_convite(nome_do_usuario, ip_do_usuario, porta_do_usuario, ip_dest, porta_dest)
-    resposta = get_resposta_convite()
-    info = protocolo_ligacao.get_info_msg(resposta)
-    if(info == "Rejeitado"):
-        print("Usuário destino ocupado!")
-        continue
-    elif(info == "Aceito"):
+    def enviar_mensagem(mensagem):
+        socket_cliente = socket(AF_INET, SOCK_STREAM)
+        socket_cliente.connect((ip_do_servidor, porta_do_servidor))
+        socket_cliente.send(mensagem.encode())
+        socket_cliente.close()
+
+    def imprimir_mensagens(mensagem, resposta):
+        print("Cliente: \"{0}\"".format(mensagem))
+        if(resposta != ""): print("Servidor: \"{0}\"".format(resposta))
+
+    def registrar_usuario(nome, ip, porta):
+        mensagem = protocolo_registro.get_mensagem_do_tipo_registrar("{0}, {1}, {2}".format(nome, ip, porta))
+        return mensagem, enviar_mensagem_e_aguardar_resposta(mensagem)
         
-        print("Ligação aceita!")
-        #receber_dados_ligacao()
-        threading.Thread(target=receber_dados_ligacao).start()
-        input("Aperte enter para encerrar a ligação:")
-        g_encerrar_ligacao = True
-        #socket_cliente.
+    def consultar_usuario(nome):
+        mensagem = protocolo_registro.get_mensagem_do_tipo_consultar(nome)
+        return mensagem, enviar_mensagem_e_aguardar_resposta(mensagem)
 
+    def fechar_conexao_com_o_servidor(nome):
+        mensagem = protocolo_registro.get_mensagem_do_tipo_fechar_conexao(nome)
+        enviar_mensagem(mensagem)
+        return mensagem
 
-        #TEMPORARIAMENTE servidor_ligacao.iniciar_ligacao([nome_do_usuario, ip_do_usuario, porta_do_usuario])
-        
+    usuario_registrado = False
+    nome_do_usuario = ""
+    ip_do_usuario = input("Digite seu ip: ")
+    porta_do_usuario = int(input("Digite sua porta: "))
+    while not usuario_registrado:
+        nome_do_usuario = input("Digite seu nome: ")    
+        mensagem, resposta = registrar_usuario(nome_do_usuario, ip_do_usuario, porta_do_usuario)
+        if(protocolo_registro.get_tipo_de_mensagem(resposta) == protocolo_registro.MENSAGEM_TIPO_OK):
+            usuario_registrado = True
+        imprimir_mensagens(mensagem, resposta)
 
+    #################### FIM CÓDIGO DO ARQUIVO CLIENTE.PY - ETAPA 1 ############################
+    import protocolo_ligacao
+    import servidor_ligacao
+    import audio
 
+    PORTA_SERVIDOR_LIGACOES = 6000
+    socket_cliente = socket(AF_INET, SOCK_DGRAM)
+    socket_cliente.bind(("", porta_do_usuario))
 
+    def enviar_convite(nome, ip, porta, ip_dest, porta_dest, socket):
+        convite = protocolo_ligacao.get_msg_convite("{0}, {1}, {2}".format(nome, ip, porta))
+        socket.sendto(convite.encode(), (ip_dest, porta_dest))
+        resposta, endereco = socket.recvfrom(1024)
+        return resposta.decode()
 
-"""
-IF RECEBE PEDIDO DE TERMINO() TERMINA LIGACAO
-IF QUER TERMINAR() TERMINA LIGACAO
+    while True:
+        nome_dest_ligacao= input("Para quem você deseja ligar? (digite \"quit\" para sair): ")
+        if(nome_dest_ligacao == "quit"):
+            mensagem = fechar_conexao_com_o_servidor(nome_do_usuario)
+            imprimir_mensagens(mensagem, "")
+            break
+        mensagem, resposta = consultar_usuario(nome_dest_ligacao)
+        imprimir_mensagens(mensagem, resposta)
 
-
-
-
-sentence = raw_input('Input lowercase sentence:')
-
-# Envio de bytes. Repare que o endereco do destinatario eh necessario
-clientSocket.sendto(sentence, (serverName, serverPort))
-
-# Recepcao
-modifiedSentence, addr = clientSocket.recvfrom(1024)
-print 'From Server {}: {}'.format(addr, modifiedSentence)
-
-# Fechamento
-clientSocket.close()
-"""
+        if(protocolo_registro.get_tipo_de_mensagem(resposta) == protocolo_registro.MENSAGEM_TIPO_ERRO):
+            print("Erro: Usuário não encontrado!")
+            continue
+        informacoes = protocolo_registro.get_informacoes_da_mensagem(resposta)
+        ip_usuario_dest, porta_usuario_dest = informacoes.split(", ")
+        PORTA_SERVIDOR_LIGACOES = int(input("porta_dest: "))# 6000 COMENTEI PARA PODER TESTAR NO MEU PC
+        resposta = enviar_convite(nome_do_usuario, ip_do_usuario, porta_do_usuario, ip_usuario_dest, PORTA_SERVIDOR_LIGACOES, socket_cliente)
+        info = protocolo_ligacao.get_info_msg(resposta)
+        if(info == "Rejeitado"):
+            print("Usuário destino ocupado!")
+            continue
+        elif(info == "Aceito"):
+            realizar_ligacao()
+            servidor_ligacao.iniciar_ligacao([nome_dest_ligacao, ip_usuario_dest, porta_usuario_dest])
+    socket_cliente.close()

@@ -95,7 +95,7 @@ if __name__ == "__main__":
     def receber_dados_ligacao():
         #socket_ligacao = socket(AF_INET, SOCK_DGRAM)
         #socket_ligacao.bind(("", porta_do_usuario))
-        for i in range(10):
+        for i in range(200):
             dados, endereco = socket_cliente.recvfrom(4096)
             audio.g_quadros.append(dados)
         audio.iniciar_reproducao_audio()

@@ -46,6 +46,7 @@ def iniciar_ligacao(dados_usuario_destino):
     g_usuario_dest = {"nome": dados_usuario_destino[0],
                       "ip": dados_usuario_destino[1],
                       "porta": int(dados_usuario_destino[2])}
+    print(g_usuario_dest)
     threading.Thread(target=enviar_dados_ligacao, daemon=True).start()
 
 def convite_aceito(resp): return protocolo.get_info_msg(resp) == "Aceito"

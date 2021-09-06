@@ -93,6 +93,7 @@ if __name__ == "__main__":
 
     g_encerrar_ligacao = False
     def receber_dados_ligacao():
+        print("RECEBENDO ÁUDIO!")
         #socket_ligacao = socket(AF_INET, SOCK_DGRAM)
         #socket_ligacao.bind(("", porta_do_usuario))
         for i in range(30):
@@ -102,7 +103,7 @@ if __name__ == "__main__":
         while not g_encerrar_ligacao:#servidor_ligacao.ligacao_em_andamento() and not g_encerrar_ligacao:
             dados, endereco = socket_cliente.recvfrom(4096)
             audio.g_quadros.append(dados)
-            print("ÁUDIO RECEBIDO!!!!!!!!")
+            #print("ÁUDIO RECEBIDO!!!!!!!!")
         socket_cliente.sendto(protocolo_ligacao.get_msg_encerrar_ligacao().encode(), (ip_usuario_dest, PORTA_SERVIDOR_LIGACOES))
 
     def realizar_ligacao():

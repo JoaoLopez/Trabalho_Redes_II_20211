@@ -32,12 +32,13 @@ def emissor_msg_valido(emissor):
 def ligacao_em_andamento(): return g_usuario_dest
 
 def enviar_dados_ligacao():
+    print("ENVIANDO ÁUDIO!")
     audio.iniciar_gravacao_audio()
     socket_ligacao = socket(AF_INET, SOCK_DGRAM)
     while ligacao_em_andamento():
         if(len(audio.g_quadros) > 0):
             socket_ligacao.sendto(audio.g_quadros.pop(0), (g_usuario_dest["ip"], g_usuario_dest["porta"]))
-            print("ÁUDIO ENVIADO!")
+            #print("ÁUDIO ENVIADO!")
     socket_ligacao.close()
     audio.encerrar_gravacao_audio()
 

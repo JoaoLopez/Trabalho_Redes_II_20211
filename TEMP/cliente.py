@@ -94,8 +94,6 @@ if __name__ == "__main__":
     g_encerrar_ligacao = False
     def receber_dados_ligacao():
         print("RECEBENDO ÁUDIO!")
-        #socket_ligacao = socket(AF_INET, SOCK_DGRAM)
-        #socket_ligacao.bind(("", porta_do_usuario)) 
         for i in range(30):
             dados, endereco = socket_cliente.recvfrom(4096)
             audio.g_quadros_output.append(dados)
@@ -103,7 +101,7 @@ if __name__ == "__main__":
         while not g_encerrar_ligacao:#servidor_ligacao.ligacao_em_andamento() and not g_encerrar_ligacao:
             dados, endereco = socket_cliente.recvfrom(4096)
             audio.g_quadros_output.append(dados)
-            #print("ÁUDIO RECEBIDO!!!!!!!!")
+        audio.encerrar_reproducao_audio()
         socket_cliente.sendto(protocolo_ligacao.get_msg_encerrar_ligacao().encode(), (ip_usuario_dest, PORTA_SERVIDOR_LIGACOES))
 
     def realizar_ligacao():
@@ -127,9 +125,7 @@ if __name__ == "__main__":
         return resposta.decode()
 
     while True:
-        if(util.g_convite_recebido[0]):
-            print("ENTROU")
-            mostrar_convite_usuario(util.g_convite_recebido[0])
+        if(util.g_convite_recebido[0]): mostrar_convite_usuario(util.g_convite_recebido[0])
         nome_dest_ligacao= input("Para quem você deseja ligar? (digite \"quit\" para sair): ")
         if(nome_dest_ligacao == "quit"):
             mensagem = fechar_conexao_com_o_servidor(nome_do_usuario)
@@ -137,7 +133,6 @@ if __name__ == "__main__":
             break
         mensagem, resposta = consultar_usuario(nome_dest_ligacao)
         imprimir_mensagens(mensagem, resposta)
-
         if(protocolo_registro.get_tipo_de_mensagem(resposta) == protocolo_registro.MENSAGEM_TIPO_ERRO):
             print("Erro: Usuário não encontrado!")
             continue

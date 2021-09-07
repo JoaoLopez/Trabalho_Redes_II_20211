@@ -20,6 +20,7 @@ from socket import *
 import protocolo_ligacao as protocolo
 import threading
 import audio
+import util, time
 
 def encerrar_ligacao():
     global g_usuario_dest
@@ -38,7 +39,6 @@ def enviar_dados_ligacao():
     while ligacao_em_andamento():
         if(len(audio.g_quadros_input) > 0):
             socket_ligacao.sendto(audio.g_quadros_input.pop(0), (g_usuario_dest["ip"], g_usuario_dest["porta"]))
-            #print("ÁUDIO ENVIADO!")
     socket_ligacao.close()
     audio.encerrar_gravacao_audio()
 
@@ -47,24 +47,12 @@ def iniciar_ligacao(dados_usuario_destino):
     g_usuario_dest = {"nome": dados_usuario_destino[0],
                       "ip": dados_usuario_destino[1],
                       "porta": int(dados_usuario_destino[2])}
-    print(g_usuario_dest)
     threading.Thread(target=enviar_dados_ligacao, daemon=True).start()
 
 def convite_aceito(resp): return protocolo.get_info_msg(resp) == "Aceito"
 
-###QUANDO A GUI ESTIVER FUNCIONANDO ACHO QUE ESSA FUNÇÃO DEVERIA ESTAR NO
-###MÓDULO CLIENTE
-"""
-def mostrar_convite_usuario(info):
-    print("Novo Convite Recebido!")
-    print("Nome: {0} IP: {1} Porta: {2}".format(info[0], info[1], info[2]))
-    return input("Aceitar([s]/n): ")
-"""
-
 def mostrar_convite_usuario(info):
     print("oi")
-    import util, time
-    
     util.g_convite_recebido[0] = info
     while util.g_resp_convite[0] is None: time.sleep(0.1)
     return util.g_resp_convite[0]
@@ -81,7 +69,6 @@ def processar_convite(info):
 def get_info_convite(convite): return protocolo.get_info_msg(convite).split(", ")
 
 def executar_servidor():
-    IP_SERVIDOR = "localhost"
     #PORTA_SERVIDOR = 6000 #COMENTEI PARA PODER FAZER TESTES NO MESMO COMPUTADOR
     PORTA_SERVIDOR = int(input("PORTA: "))
     socket_servidor = socket(AF_INET, SOCK_DGRAM)
@@ -95,10 +82,7 @@ def executar_servidor():
             resposta = processar_convite(info)
             socket_servidor.sendto(resposta.encode(), endereco)
             print("Resposta Enviada:", resposta)
-            if(convite_aceito(resposta)):
-                iniciar_ligacao(info)
-                ##################import cliente
-                #################cliente.realizar_ligacao()
+            if(convite_aceito(resposta)): iniciar_ligacao(info)
         elif(protocolo.get_tipo_msg(mensagem) == protocolo.MENSAGEM_ENCERRAR_LIGACAO):
             if(ligacao_em_andamento() and emissor_msg_valido(endereco)):
                 encerrar_ligacao()

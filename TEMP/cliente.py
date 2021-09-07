@@ -30,7 +30,6 @@ para o servidor de ligação e para de transmitir áudio.
 ● Quando recebe a mensagem “encerrar_ligação”, para a transmissão de áudio.
 """
 ###DEPOIS ESSE ARQUIVO DEVE SER COMBINADO AO ARQUIVO CLIENT.JS!!!!!
-from TEMP.audio import encerrar_reproducao_audio
 
 
 if __name__ == "__main__":

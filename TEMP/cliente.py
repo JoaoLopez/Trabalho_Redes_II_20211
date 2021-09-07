@@ -98,7 +98,7 @@ if __name__ == "__main__":
             dados, endereco = socket_cliente.recvfrom(4096)
             audio.g_quadros_output.append(dados)
         audio.iniciar_reproducao_audio()
-        while not g_encerrar_ligacao:#servidor_ligacao.ligacao_em_andamento() and not g_encerrar_ligacao:
+        while not g_encerrar_ligacao:# servidor_ligacao.ligacao_em_andamento() and not g_encerrar_ligacao:
             dados, endereco = socket_cliente.recvfrom(4096)
             audio.g_quadros_output.append(dados)
         audio.encerrar_reproducao_audio()

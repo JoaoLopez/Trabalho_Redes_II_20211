@@ -30,7 +30,10 @@ para o servidor de ligação e para de transmitir áudio.
 ● Quando recebe a mensagem “encerrar_ligação”, para a transmissão de áudio.
 """
 ###DEPOIS ESSE ARQUIVO DEVE SER COMBINADO AO ARQUIVO CLIENT.JS!!!!!
-
+g_encerrar_ligacao = False
+def encerrar_ligacao():
+    global g_encerrar_ligacao
+    g_encerrar_ligacao = True
 
 if __name__ == "__main__":
     ################# CÓDIGO DO ARQUIVO CLIENTE.PY - ETAPA 1 #####################
@@ -91,15 +94,8 @@ if __name__ == "__main__":
 
     PORTA_SERVIDOR_LIGACOES = 6000
     socket_cliente = socket(AF_INET, SOCK_DGRAM)
-    socket_cliente.bind(("", porta_do_usuario))
+    socket_cliente.bind(("", porta_do_usuario))        
 
-    def encerrar_ligacao():
-        global g_encerrar_ligacao
-        g_encerrar_ligacao = True
-        mensagem = protocolo_ligacao.get_msg_encerrar_ligacao()
-        socket_cliente.sendto(mensagem.encode(), (ip_usuario_dest, PORTA_SERVIDOR_LIGACOES))
-
-    g_encerrar_ligacao = False
     def receber_dados_ligacao():
         print("RECEBENDO ÁUDIO!")
         for i in range(30):
@@ -115,6 +111,8 @@ if __name__ == "__main__":
         threading.Thread(target=receber_dados_ligacao).start()
         input("Aperte enter para encerrar a ligação:")
         encerrar_ligacao()
+        mensagem = protocolo_ligacao.get_msg_encerrar_ligacao()
+        socket_cliente.sendto(mensagem.encode(), (ip_usuario_dest, PORTA_SERVIDOR_LIGACOES))
         servidor_ligacao.encerrar_ligacao()
 
     def mostrar_convite_usuario(info):

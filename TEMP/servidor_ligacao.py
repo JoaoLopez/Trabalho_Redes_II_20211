@@ -86,6 +86,8 @@ def executar_servidor():
         elif(protocolo.get_tipo_msg(mensagem) == protocolo.MENSAGEM_ENCERRAR_LIGACAO):
             if(ligacao_em_andamento() and emissor_msg_valido(endereco)):
                 encerrar_ligacao()
+                import cliente
+                cliente.encerrar_ligacao()
     socket_servidor.close()
 
 g_usuario_dest = None

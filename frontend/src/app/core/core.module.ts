@@ -21,7 +21,7 @@ import { CloseConnectionComponent } from './close-connection/close-connection.co
  * o impotante é ser mantida a porta 4444, numa situação de execução local, o endereço 127.0.0.1 será suficiente
  * para conectar. Como o desenvolvimento foi feito numa vm linux e ela tinha outra interface de rede, usamos o endereço da vm aqui para a conexão.
  */
-const config: SocketIoConfig = { url: 'http://127.0.0.1:4444', options: {} };
+const config: SocketIoConfig = { url: 'http://localhost:4444', options: {} };
 
 @NgModule({
   declarations: [MainPageComponent, SearchComponent, CloseConnectionComponent],

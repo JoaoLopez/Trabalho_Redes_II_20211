@@ -7,6 +7,14 @@
     </form>
 
     <div class="search-result">
-        {{ searchResult }}
+        <ng-container *ngIf="searchResult.length > 0">
+            <p> {{ searchResult }} </p>
+            <button [disabled]="callStarted" mat-mini-fab color="primary" (click)="startCall()">
+                <mat-icon>call</mat-icon>
+            </button>
+            <button [disabled]="!callStarted" mat-mini-fab color="warn" (click)="endCall()">
+                <mat-icon>call</mat-icon>
+            </button>
+        </ng-container>
     </div>
 </div>

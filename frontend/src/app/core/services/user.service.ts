@@ -15,6 +15,7 @@ export class UserService {
   events = this.socket.fromEvent<string>('events');
   errors = this.socket.fromEvent<string>('errors');
   users = this.socket.fromEvent<User[]>('users');
+  voiceReceived = this.socket.fromEvent<string>('voiceReceived');
 
   constructor(private socket: Socket) { }
 
@@ -31,5 +32,9 @@ export class UserService {
   /** Remover um usuário/encerramento de conexão */
   removeUser(name: string) {
     this.socket.emit('removeUser', name);
+  }
+
+  voice(voiceData: {audio: string, username: string}) {
+    this.socket.emit('voice', voiceData);
   }
 }

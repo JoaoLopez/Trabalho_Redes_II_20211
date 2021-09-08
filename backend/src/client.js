@@ -123,6 +123,17 @@ io.on("connection", socket => {
         });
     });
 
+    socket.on("voice", data => {
+
+        let newData = data.audio.split(";");
+        newData[0] = "data:audio/ogg;";
+        newData = newData[0] + newData[1];
+
+        const socketToEmit = getSocketByUsername(data.username);
+        
+        socketToEmit.emit('voiceReceived', newData);
+    });
+
     /* As emissões de evento feitas pelo objeto io funcionam como broadcast,
     são enviadas à todos os WebSockets, esta no caso sempre é enviada no início de uma conexão
     para que o frontend conheça todos os usuários cadastrados
@@ -140,6 +151,10 @@ function connectToServerSocket() {
             resolve();
         });
     });
+}
+
+function getSocketByUsername(username) {
+    return sockets.find(socket => socket.id === users.find(user => user.name === username).socketId);
 }
 
 /* Buscar por um WebSocket armazenado no array sockets pelo seu id */

@@ -18,6 +18,17 @@
 
         .search-result {
             margin-top: 16px;
+            display: flex;
+            height: 60px;
+
+            p {
+                line-height: 40px;
+                margin-right: 20px;
+            }
+
+            button[color="primary"] {
+                margin-right: 20px;
+            }
         }
     }
 }

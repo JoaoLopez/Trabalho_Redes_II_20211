@@ -45,6 +45,7 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
   private errorsSub: Subscription;
   /** Remoção de usuário e encerramento de sessão/conexão */
   private removeSub: Subscription;
+  private voiceReceived: Subscription;
 
   /** Referência ao componente de abas */
   @ViewChild('tabGroup', { static: false }) tabGroup: MatTabGroup;
@@ -96,6 +97,10 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
       const newDataSource = users.slice();
       this.dataSource = [...newDataSource];
     });
+    this.voiceReceived = this.userService.voiceReceived.subscribe(voice => {
+      let audio = new Audio(voice);
+      audio.play();
+    });
   }
 
   ngAfterViewInit() {
@@ -113,6 +118,7 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.eventsSub.unsubscribe();
     this.errorsSub.unsubscribe();
     this.removeSub.unsubscribe();
+    this.voiceReceived.unsubscribe();
   }
 
   /** Evento disparado ao se clicar no botão 'Conectar' na aba 'Cadastro' */

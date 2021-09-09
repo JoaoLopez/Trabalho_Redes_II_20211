@@ -8,6 +8,7 @@ Recebe as comunicações do frontend via WebSocket na porta 4444, e se comunica 
 */
 
 /* Importações */
+var udp = require('dgram');
 const call = require('./call_functions');
 const fs = require('fs');
 const app = require('express')();
@@ -46,7 +47,7 @@ process.on("SIGINT", function () {
 });
 
 /* Inicialização do processo servidor.py */
-const pythonServer = spawn("python3", ["servidor.py"]);
+const pythonServer = spawn("python", ["servidor.py"]);
 
 /* Listeners responsáveis por escutar os eventos do processo servidor.py e imprimí-los no console */
 pythonServer.stdout.on("data", data => {
@@ -72,6 +73,38 @@ pythonServer.on("close", code => {
 const client = new net.Socket();
 const users = [];
 const sockets = [];
+
+// creating a client socket
+var clientudp = udp.createSocket('udp4');
+
+//buffer msg
+var data = Buffer.from('siddheshrane');
+
+clientudp.on('message', function (msg, info) {
+    console.log('Data received from server : ' + msg.toString());
+    console.log('Received %d bytes from %s:%d\n', msg.length, info.address, info.port);
+});
+
+//sending msg
+clientudp.send(data, 2222, '192.168.0.103', function (error) {
+    if (error) {
+        clientudp.close();
+    } else {
+        console.log('Data sent !!!');
+    }
+});
+
+var data1 = Buffer.from('hello');
+var data2 = Buffer.from('world');
+
+//sending multiple msg
+clientudp.send([data1, data2], 2222, '192.168.0.103', function (error) {
+    if (error) {
+        clientudp.close();
+    } else {
+        console.log('Data sent !!!');
+    }
+});
 
 /* Listener das conexões de WebSocket com o frontend, o evento "connection" é disparado sempre que uma nova conexão com o frontend é iniciada */
 io.on("connection", socket => {

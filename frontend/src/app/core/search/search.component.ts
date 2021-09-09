@@ -51,6 +51,10 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.userService.getUser(userName);
   }
 
+  makeInvite() {
+    this.voiceCall.makeInvite(localStorage.getItem('user'), this.userSearch.get('name').value);
+  }
+
   startCall() {
     this.voiceCall.startCall(this.userSearch.get('name').value);
     this.callStarted = true;

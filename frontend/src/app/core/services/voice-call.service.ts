@@ -9,7 +9,13 @@ export class VoiceCallService {
   private mediaRecorder: MediaRecorder;
   private canSendVoice = false;
 
+  inviteReceived = this.socket.fromEvent<string>('inviteReceived');
+
   constructor(private socket: Socket) { }
+
+  makeInvite(host: string, username: string) {
+    this.socket.emit('makeInvite', { host, username });
+  }
 
   startCall(username: string, time = 1000) {
     this.canSendVoice = true;

@@ -16,15 +16,16 @@ import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { MainPageComponent } from './main-page/main-page.component';
 import { SearchComponent } from './search/search.component';
 import { CloseConnectionComponent } from './close-connection/close-connection.component';
+import { ReceivingCallDialogComponent } from './receiving-call-dialog/receiving-call-dialog.component';
 
 /** Configuração de comunicação com o backend
  * o impotante é ser mantida a porta 4444, numa situação de execução local, o endereço 127.0.0.1 será suficiente
  * para conectar. Como o desenvolvimento foi feito numa vm linux e ela tinha outra interface de rede, usamos o endereço da vm aqui para a conexão.
  */
-const config: SocketIoConfig = { url: 'http://localhost:4444', options: {} };
+const config: SocketIoConfig = { url: 'https://localhost:4444', options: {} };
 
 @NgModule({
-  declarations: [MainPageComponent, SearchComponent, CloseConnectionComponent],
+  declarations: [MainPageComponent, SearchComponent, CloseConnectionComponent, ReceivingCallDialogComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -42,6 +43,6 @@ const config: SocketIoConfig = { url: 'http://localhost:4444', options: {} };
     ReactiveFormsModule
   ],
   exports: [MainPageComponent],
-  entryComponents: [CloseConnectionComponent]
+  entryComponents: [CloseConnectionComponent, ReceivingCallDialogComponent]
 })
 export class CoreModule { }

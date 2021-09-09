@@ -5,7 +5,9 @@ import { Observable, Subscription } from 'rxjs';
 import { CloseConnectionComponent } from '../close-connection/close-connection.component';
 import { CloseConnection } from '../interfaces/close-dialog.interface';
 import { User } from '../interfaces/user.interface';
+import { ReceivingCallDialogComponent } from '../receiving-call-dialog/receiving-call-dialog.component';
 import { UserService } from '../services/user.service';
+import { VoiceCallService } from '../services/voice-call.service';
 
 /**
  * Tela principal da aplicação
@@ -46,6 +48,7 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Remoção de usuário e encerramento de sessão/conexão */
   private removeSub: Subscription;
   private voiceReceived: Subscription;
+  private inviteReceivedSub: Subscription;
 
   /** Referência ao componente de abas */
   @ViewChild('tabGroup', { static: false }) tabGroup: MatTabGroup;
@@ -55,6 +58,7 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
     private fb: FormBuilder,
     private userService: UserService,
     private snackBar: MatSnackBar,
+    private voiceCall: VoiceCallService
   ) {
     /* Inicia o formulário de usuário com valores padrão */
     this.user = this.fb.group({
@@ -69,6 +73,7 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.users = this.userService.users;
     this.userSub = this.userService.currentUser.subscribe(user => {
       console.log(user);
+      localStorage.setItem('user', user.name);
       this.currentUser = user;
       this.hasUser = true;
       this.user.disable();
@@ -91,6 +96,7 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
       this.hasUser = false;
       this.user.reset();
       this.user.enable();
+      localStorage.clear();
     })
     this.users.subscribe(users => {
       console.log(users)
@@ -100,6 +106,9 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.voiceReceived = this.userService.voiceReceived.subscribe(voice => {
       let audio = new Audio(voice);
       audio.play();
+    });
+    this.inviteReceivedSub = this.voiceCall.inviteReceived.subscribe(invite => {
+      this.openInviteDialog(invite);
     });
   }
 
@@ -119,6 +128,7 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.errorsSub.unsubscribe();
     this.removeSub.unsubscribe();
     this.voiceReceived.unsubscribe();
+    this.inviteReceivedSub.unsubscribe();
   }
 
   /** Evento disparado ao se clicar no botão 'Conectar' na aba 'Cadastro' */
@@ -139,6 +149,17 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
       if (result.close) {
         this.userService.removeUser(this.currentUser.name);
       }
+    });
+  }
+
+  openInviteDialog(hostname): void {
+    const dialogRef = this.dialog.open(ReceivingCallDialogComponent, {
+      width: '400px',
+      data: { host: hostname }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed', result);
     });
   }
 }

@@ -1,0 +1,12 @@
+:host {
+    .actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-top: 10px;
+
+        button:nth-child(1) {
+            margin-right: 10px;
+        }
+    }
+}

@@ -8,12 +8,21 @@ Recebe as comunicações do frontend via WebSocket na porta 4444, e se comunica 
 */
 
 /* Importações */
+const call = require('./call_functions');
+const fs = require('fs');
 const app = require('express')();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const https = require('https').createServer({
+    key: fs.readFileSync('server.key'),
+    cert: fs.readFileSync('server.cert')
+}, app);
+const io = require('socket.io')(https);
 const net = require('net');
 const { spawn } = require("child_process");
 const process = require('process');
+
+app.get('/', (req, res) => {
+    res.send('Hello HTTPS!')
+});
 
 /* REGIÃO 1 - INÍCIO DO PROCESSO SERVIDOR */
 /* Região responsável por iniciar o processo servidor (arquivo servidor.py) e encerrá-lo quando o script for encerrado */
@@ -123,15 +132,12 @@ io.on("connection", socket => {
         });
     });
 
-    socket.on("voice", data => {
+    socket.on("voice", data => call.handleVoiceData(data));
 
-        let newData = data.audio.split(";");
-        newData[0] = "data:audio/ogg;";
-        newData = newData[0] + newData[1];
+    socket.on("makeInvite", invite => {
+        const socketToEmit = getSocketByUsername(invite.username);
 
-        const socketToEmit = getSocketByUsername(data.username);
-        
-        socketToEmit.emit('voiceReceived', newData);
+        socketToEmit.emit('inviteReceived', invite.host);
     });
 
     /* As emissões de evento feitas pelo objeto io funcionam como broadcast,
@@ -156,6 +162,7 @@ function connectToServerSocket() {
 function getSocketByUsername(username) {
     return sockets.find(socket => socket.id === users.find(user => user.name === username).socketId);
 }
+exports.getSocketByUsername = getSocketByUsername;
 
 /* Buscar por um WebSocket armazenado no array sockets pelo seu id */
 function getSocket(socketId) {
@@ -214,6 +221,6 @@ client.on('data', function (data) {
 });
 
 /* Listener das conexões http com o frontend, porta de entrada do client.js com o frontend */
-http.listen(4444, '0.0.0.0', () => {
+https.listen(4444, '0.0.0.0', () => {
     console.log('Listening on port 4444');
 });

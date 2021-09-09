@@ -13,22 +13,12 @@ server.on('error', function (error) {
 
 // emits on new datagram msg
 server.on('message', function (msg, info) {
-    console.log('Data received from client : ' + msg.toString());
-    console.log('Received %d bytes from %s:%d\n', msg.length, info.address, info.port);
-
     //sending msg
-    server.send(msg, info.port, '192.168.0.103', function (error) {
-        console.log('entreiu');
+    server.send(msg, info.port, info.address, function (error) {
         if (error) {
-            console.log('error');
-            console.log(error);
             client.close();
-        } else {
-            console.log('Data sent !!!');
         }
-
     });
-
 });
 
 //emits when socket is ready and listening for datagram msgs
@@ -47,11 +37,4 @@ server.on('close', function () {
     console.log('Socket is closed !');
 });
 
-server.bind(2222, '192.168.0.103');
-
-/* setTimeout(function () {
-    server.close();
-}, 8000); */
-
-// -------------------- udp client ----------------
-
+server.bind(6000);

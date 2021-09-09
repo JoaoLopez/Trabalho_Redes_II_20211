@@ -24,7 +24,7 @@ import { MatProgressSpinnerModule } from '@angular/material';
  * o impotante é ser mantida a porta 4444, numa situação de execução local, o endereço 127.0.0.1 será suficiente
  * para conectar. Como o desenvolvimento foi feito numa vm linux e ela tinha outra interface de rede, usamos o endereço da vm aqui para a conexão.
  */
-const config: SocketIoConfig = { url: 'https://localhost:4444', options: {} };
+const config: SocketIoConfig = { url: 'https://192.168.0.103:4444', options: {} };
 
 @NgModule({
   declarations: [

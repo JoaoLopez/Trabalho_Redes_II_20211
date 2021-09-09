@@ -17,15 +17,23 @@ import { MainPageComponent } from './main-page/main-page.component';
 import { SearchComponent } from './search/search.component';
 import { CloseConnectionComponent } from './close-connection/close-connection.component';
 import { ReceivingCallDialogComponent } from './receiving-call-dialog/receiving-call-dialog.component';
+import { WaitingForCallDialogComponent } from './waiting-for-call-dialog/waiting-for-call-dialog.component';
+import { MatProgressSpinnerModule } from '@angular/material';
 
 /** Configuração de comunicação com o backend
  * o impotante é ser mantida a porta 4444, numa situação de execução local, o endereço 127.0.0.1 será suficiente
  * para conectar. Como o desenvolvimento foi feito numa vm linux e ela tinha outra interface de rede, usamos o endereço da vm aqui para a conexão.
  */
-const config: SocketIoConfig = { url: 'https://localhost:4444', options: {} };
+const config: SocketIoConfig = { url: 'https://172.17.53.185:4444', options: {} };
 
 @NgModule({
-  declarations: [MainPageComponent, SearchComponent, CloseConnectionComponent, ReceivingCallDialogComponent],
+  declarations: [
+    MainPageComponent,
+    SearchComponent,
+    CloseConnectionComponent,
+    ReceivingCallDialogComponent,
+    WaitingForCallDialogComponent
+  ],
   imports: [
     CommonModule,
     FormsModule,
@@ -37,12 +45,17 @@ const config: SocketIoConfig = { url: 'https://localhost:4444', options: {} };
     MatTabsModule,
     MatTableModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
     MatSnackBarModule,
     NgxMaskModule.forRoot(),
     SocketIoModule.forRoot(config),
     ReactiveFormsModule
   ],
   exports: [MainPageComponent],
-  entryComponents: [CloseConnectionComponent, ReceivingCallDialogComponent]
+  entryComponents: [
+    CloseConnectionComponent,
+    ReceivingCallDialogComponent,
+    WaitingForCallDialogComponent
+  ]
 })
 export class CoreModule { }

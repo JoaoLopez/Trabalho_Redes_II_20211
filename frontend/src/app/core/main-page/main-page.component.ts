@@ -49,6 +49,7 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
   private removeSub: Subscription;
   private voiceReceived: Subscription;
   private inviteReceivedSub: Subscription;
+  private callEndedSub: Subscription;
 
   /** Referência ao componente de abas */
   @ViewChild('tabGroup', { static: false }) tabGroup: MatTabGroup;
@@ -110,6 +111,9 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.inviteReceivedSub = this.voiceCall.inviteReceived.subscribe(invite => {
       this.openInviteDialog(invite);
     });
+    this.callEndedSub = this.voiceCall.callEnded.subscribe(end => {
+      this.voiceCall.endCall();
+    });
   }
 
   ngAfterViewInit() {
@@ -129,6 +133,7 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.removeSub.unsubscribe();
     this.voiceReceived.unsubscribe();
     this.inviteReceivedSub.unsubscribe();
+    this.callEndedSub.unsubscribe();
   }
 
   /** Evento disparado ao se clicar no botão 'Conectar' na aba 'Cadastro' */
@@ -152,14 +157,11 @@ export class MainPageComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  openInviteDialog(hostname): void {
-    const dialogRef = this.dialog.open(ReceivingCallDialogComponent, {
+  openInviteDialog(invite): void {
+    this.dialog.open(ReceivingCallDialogComponent, {
       width: '400px',
-      data: { host: hostname }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed', result);
+      data: { invite },
+      disableClose: true
     });
   }
 }

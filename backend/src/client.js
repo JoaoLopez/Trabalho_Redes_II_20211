@@ -137,7 +137,21 @@ io.on("connection", socket => {
     socket.on("makeInvite", invite => {
         const socketToEmit = getSocketByUsername(invite.username);
 
-        socketToEmit.emit('inviteReceived', invite.host);
+        socketToEmit.emit('inviteReceived', { host: invite.host, username: invite.username });
+    });
+
+    socket.on("respondInvite", invite => {
+        const socketToEmit = getSocketByUsername(invite.host);
+
+        socketToEmit.emit('inviteResponded', invite.receiveCall);
+    });
+
+    socket.on("endCall", ending => {
+        const socketToEmitHost = getSocketByUsername(ending.host);
+        const socketToEmitUsername = getSocketByUsername(ending.username);
+
+        socketToEmitHost.emit('callEnded', true);
+        socketToEmitUsername.emit('callEnded', true);
     });
 
     /* As emissões de evento feitas pelo objeto io funcionam como broadcast,

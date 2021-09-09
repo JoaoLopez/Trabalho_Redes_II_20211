@@ -17,4 +17,9 @@
             </button>
         </ng-container>
     </div>
+    <div class="search-result">
+        <ng-container *ngIf="callStatus.length > 0">
+            <p> {{ callStatus }} </p>
+        </ng-container>
+    </div>
 </div>

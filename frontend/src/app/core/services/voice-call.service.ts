@@ -8,13 +8,25 @@ export class VoiceCallService {
 
   private mediaRecorder: MediaRecorder;
   private canSendVoice = false;
+  private host = '';
+  private username = '';
 
-  inviteReceived = this.socket.fromEvent<string>('inviteReceived');
+  inviteReceived = this.socket.fromEvent<any>('inviteReceived');
+  inviteResponded = this.socket.fromEvent<boolean>('inviteResponded');
+  callEnded = this.socket.fromEvent<boolean>('callEnded');
 
   constructor(private socket: Socket) { }
 
   makeInvite(host: string, username: string) {
+    this.host = host;
+    this.username = username;
     this.socket.emit('makeInvite', { host, username });
+  }
+
+  respondInvite(receiveCall) {
+    this.host = receiveCall.host;
+    this.username = receiveCall.username;
+    this.socket.emit('respondInvite', receiveCall);
   }
 
   startCall(username: string, time = 1000) {
@@ -46,21 +58,25 @@ export class VoiceCallService {
           this.mediaRecorder.start();
 
           setTimeout(() => {
-            console.log('stop2');
-            this.mediaRecorder.stop();
+            try {
+              this.mediaRecorder.stop();
+            } catch {}
           }, time);
         }
       });
 
       setTimeout(() => {
-        console.log('stop1');
-        this.mediaRecorder.stop();
+        try {
+          this.mediaRecorder.stop();
+        } catch { }
       }, time);
     });
   }
 
   endCall() {
     this.canSendVoice = false;
-    this.mediaRecorder.stop();
+    try {
+      this.mediaRecorder.stop();
+    } catch { }
   }
 }

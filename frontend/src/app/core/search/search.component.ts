@@ -61,6 +61,8 @@ export class SearchComponent implements OnInit, OnDestroy {
   onFormSubmit() {
     const userName = this.userSearch.get('name').value;
     this.searchResult = '';
+    if (localStorage.getItem('user') === userName)
+      return;
     this.userService.getUser(userName);
   }
 

@@ -133,23 +133,40 @@ io.on("connection", socket => {
         });
     });
 
+    /** Transmite os dados de voz para o servidor udp */
     socket.on("voice", data => call.handleVoiceData(data));
 
+    /** Faz convite para o usuário */
     socket.on("makeInvite", invite => {
         const socketToEmit = getSocketByUsername(invite.username);
+
+        // se destinatário estiver em call, a call é rejeitada automaticamente
+        let userUsername = getUserByName(invite.username);
+        if (userUsername.isCalling) {
+            invite.receiveCall = false;
+            getSocketByUsername(invite.host).emit('inviteResponded', invite.receiveCall);
+            return;
+        }
 
         socketToEmit.emit('inviteReceived', { host: invite.host, username: invite.username });
     });
 
+    /** Resposta a quem faz um convite */
     socket.on("respondInvite", invite => {
         const socketToEmit = getSocketByUsername(invite.host);
 
+        getUserByName(invite.host).isCalling = true;
+        getUserByName(invite.username).isCalling = true;
         socketToEmit.emit('inviteResponded', invite.receiveCall);
     });
 
+    /** Encerramento da chamada */
     socket.on("endCall", ending => {
         const socketToEmitHost = getSocketByUsername(ending.host);
         const socketToEmitUsername = getSocketByUsername(ending.username);
+
+        getUserByName(ending.host).isCalling = false;
+        getUserByName(ending.username).isCalling = false;
 
         socketToEmitHost.emit('callEnded', true);
         socketToEmitUsername.emit('callEnded', true);

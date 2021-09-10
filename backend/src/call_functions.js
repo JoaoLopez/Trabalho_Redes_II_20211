@@ -5,11 +5,16 @@ const client = require('./client');
 var udp = require('dgram');
 var clientudp = udp.createSocket('udp4');
 
+// cria um socket cliente udp para o usuário fornecido no parametro
+// como este arquivo está no fluxo de execução de client.js, todos sockets udp clientes têm
+// o mesmo endereço ip, apenas fazer o bind em portas diferentes
 function getClientSocket(user) {
     if (!user.udpSocketClient) {
         user.udpSocketClient = udp.createSocket('udp4');
         user.udpSocketClient.bind(Number(user.port));
 
+        // quando recebe a mensagem de volta do servidor udp
+        // faz a trasmissão para o websocket do usuário
         user.udpSocketClient.on('message', function (msg, info) {
             // console.log('Data received from server : ' + msg.toString());
             console.log('Received %d bytes from %s:%d\n', msg.length, info.address, info.port);
@@ -26,6 +31,9 @@ function getClientSocket(user) {
     return user.udpSocketClient;
 }
 
+// função executada na linha 137 de client.js
+// trata os dados de voz recebidos pelo websocket
+// e os envia para o servidor udp
 function handleVoiceData(data) {
 
     let newData = data.audio.split(";");
@@ -39,8 +47,7 @@ function handleVoiceData(data) {
     let audioBuffer = Buffer.from(newData);
     getClientSocket(user).send(audioBuffer, 6000, '192.168.0.103', function (error) {
         if (error) {
-            console.log('errou rude');
-            clientudp.close();
+            getClientSocket(user).close();
         } else {
             console.log('Data sent !!!');
         }

@@ -12,6 +12,8 @@ server.on('error', function (error) {
 });
 
 // emits on new datagram msg
+// apenas devolvendo a mensagem para o cliente que a enviou
+// para que exista de fato uma conexão udp pura no trabalho
 server.on('message', function (msg, info) {
     //sending msg
     // console.log('received from ', info.port, info.address,);

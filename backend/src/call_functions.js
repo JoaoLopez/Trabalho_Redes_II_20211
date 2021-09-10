@@ -8,6 +8,7 @@ var clientudp = udp.createSocket('udp4');
 function getClientSocket(user) {
     if (!user.udpSocketClient) {
         user.udpSocketClient = udp.createSocket('udp4');
+        user.udpSocketClient.bind(Number(user.port));
 
         user.udpSocketClient.on('message', function (msg, info) {
             // console.log('Data received from server : ' + msg.toString());

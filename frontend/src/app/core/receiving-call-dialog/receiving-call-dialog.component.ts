@@ -37,7 +37,11 @@ export class ReceivingCallDialogComponent implements OnInit, OnDestroy {
     this.callAccepted = true;
     this.receiveCall = true;
     this.voiceCall.respondInvite({ receiveCall: this.receiveCall, ...this.data.invite });
-    this.voiceCall.startCall(this.data.invite.username);
+    if (localStorage.getItem('user') === this.data.invite.username) {
+        this.voiceCall.startCall(this.data.invite.host);
+    } else {
+      this.voiceCall.startCall(this.data.invite.username);
+    }
   }
 
   rejectInvite() {

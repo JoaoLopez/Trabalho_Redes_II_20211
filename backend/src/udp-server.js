@@ -14,6 +14,7 @@ server.on('error', function (error) {
 // emits on new datagram msg
 server.on('message', function (msg, info) {
     //sending msg
+    // console.log('received from ', info.port, info.address,);
     server.send(msg, info.port, info.address, function (error) {
         if (error) {
             client.close();
